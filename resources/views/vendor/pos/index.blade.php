@@ -163,13 +163,18 @@
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-between mt-4">
-                        <button type="button" class="btn btn-outline-secondary" id="clearCart">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mt-4">
+                        <button type="button" class="btn btn-outline-secondary mb-2" id="clearCart">
                             <i class="bi bi-trash"></i> Clear
                         </button>
-                        <button type="button" class="btn btn-success" id="placeOrder" disabled>
-                            <i class="bi bi-check-circle"></i> Place Order
-                        </button>
+                        <div class="btn-group mb-2" role="group" aria-label="POS actions">
+                            <button type="button" class="btn btn-outline-primary" id="saveDraft" disabled>
+                                <i class="bi bi-journal-text"></i> Save Draft
+                            </button>
+                            <button type="button" class="btn btn-success" id="placeOrder" disabled>
+                                <i class="bi bi-check-circle"></i> Place Order
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -199,8 +204,10 @@
         };
     };
 
-    const togglePlaceOrderState = () => {
-        $('#placeOrder').prop('disabled', cart.length === 0);
+    const updateActionButtonsState = () => {
+        const disabled = cart.length === 0;
+        $('#placeOrder').prop('disabled', disabled);
+        $('#saveDraft').prop('disabled', disabled);
     };
 
     // ---------- Redesigned Product Card ----------
@@ -340,7 +347,7 @@
                 body.append(row);
             });
         }
-        togglePlaceOrderState();
+        updateActionButtonsState();
         refreshTotals();
     };
 
@@ -362,6 +369,62 @@
         const form = $('#customerForm')[0];
         if (form) form.reset();
         renderCart();
+    };
+
+    const submitOrder = (status) => {
+        if (!cart.length) { toastr.warning('Add at least one item to the cart.'); return; }
+
+        const name = $('#customerName').val().trim();
+        if (!name) { toastr.error('Customer name is required.'); return; }
+
+        let contact = $('#customerContact').val().trim();
+        if (status === 'completed' && !contact) {
+            toastr.error('Customer contact is required to place the order.');
+            return;
+        }
+
+        if (!contact) { contact = null; }
+
+        const payload = {
+            status: status,
+            customer_name: name,
+            customer_contact: contact,
+            discount_amount: parseFloat($('#discountAmount').val()) || 0,
+            items: cart.map(item => ({ id: item.id, quantity: item.quantity, price_type: item.priceType }))
+        };
+
+        const activeButton = status === 'draft' ? $('#saveDraft') : $('#placeOrder');
+        const secondaryButton = status === 'draft' ? $('#placeOrder') : $('#saveDraft');
+
+        activeButton.prop('disabled', true).text('Saving...');
+        secondaryButton.prop('disabled', true);
+
+        $.ajax({
+            url: orderStoreUrl,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(payload),
+            headers: { 'X-CSRF-TOKEN': csrfToken }
+        })
+        .done(response => {
+            const message = response.message || (status === 'draft' ? 'Draft saved successfully.' : 'Order placed successfully.');
+            toastr.success(message);
+            resetCart();
+            if (status === 'completed' && response.order_id) {
+                const printUrl = orderPrintTemplate.replace('__ORDER__', response.order_id);
+                window.open(printUrl, '_blank');
+            }
+        })
+        .fail(error => {
+            if (error.responseJSON && error.responseJSON.errors)
+                error.responseJSON.errors.forEach(m => toastr.error(m));
+            else toastr.error('Unable to save the order right now.');
+        })
+        .always(() => {
+            $('#placeOrder').html('<i class="bi bi-check-circle"></i> Place Order');
+            $('#saveDraft').html('<i class="bi bi-journal-text"></i> Save Draft');
+            updateActionButtonsState();
+        });
     };
 
     $(document).ready(function () {
@@ -432,40 +495,8 @@
         $('#clearCart').on('click', function () { resetCart(); });
         $('#startNewOrder').on('click', function () { resetCart(); toastr.info('Ready for a new order.'); });
 
-        $('#placeOrder').on('click', function () {
-            if (!cart.length) { toastr.warning('Add at least one item to the cart.'); return; }
-
-            const name = $('#customerName').val().trim();
-            const contact = $('#customerContact').val().trim();
-            if (!name || !contact) { toastr.error('Customer name and contact are required.'); return; }
-
-            const payload = {
-                customer_name: name,
-                customer_contact: contact,
-                discount_amount: parseFloat($('#discountAmount').val()) || 0,
-                items: cart.map(item => ({ id: item.id, quantity: item.quantity, price_type: item.priceType }))
-            };
-
-            $('#placeOrder').prop('disabled', true).text('Saving...');
-            $.ajax({
-                url: orderStoreUrl, method: 'POST', contentType: 'application/json',
-                data: JSON.stringify(payload), headers: { 'X-CSRF-TOKEN': csrfToken }
-            })
-            .done(response => {
-                toastr.success('Order placed successfully.');
-                resetCart();
-                const printUrl = orderPrintTemplate.replace('__ORDER__', response.order_id);
-                window.open(printUrl, '_blank');
-            })
-            .fail(error => {
-                if (error.responseJSON && error.responseJSON.errors)
-                    error.responseJSON.errors.forEach(m => toastr.error(m));
-                else toastr.error('Unable to save the order right now.');
-            })
-            .always(() => {
-                $('#placeOrder').prop('disabled', cart.length === 0).html('<i class="bi bi-check-circle"></i> Place Order');
-            });
-        });
+        $('#placeOrder').on('click', function () { submitOrder('completed'); });
+        $('#saveDraft').on('click', function () { submitOrder('draft'); });
 
     });
 </script>

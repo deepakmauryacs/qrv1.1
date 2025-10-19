@@ -171,6 +171,7 @@ Route::prefix('vendor')->group(function () {
             Route::get('/orders/list', [VendorPosController::class, 'ordersList'])->name('orders.list');
             Route::get('/orders/{order}', [VendorPosController::class, 'show'])->name('orders.show');
             Route::get('/orders/{order}/print', [VendorPosController::class, 'print'])->name('orders.print');
+            Route::patch('/orders/{order}', [VendorPosController::class, 'update'])->name('orders.update');
             Route::post('/orders', [VendorPosController::class, 'store'])->name('orders.store');
         });
 

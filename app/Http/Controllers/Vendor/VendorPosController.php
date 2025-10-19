@@ -74,10 +74,21 @@ class VendorPosController extends Controller
 
     public function store(Request $request)
     {
+        $status = $request->input('status', 'completed');
+        if (!in_array($status, ['draft', 'completed'], true)) {
+            $status = 'completed';
+        }
+
+        $contactRules = ['nullable', 'string', 'max:30'];
+        if ($status !== 'draft') {
+            array_unshift($contactRules, 'required');
+        }
+
         $validator = Validator::make($request->all(), [
+            'status' => ['nullable', Rule::in(['draft', 'completed'])],
             'customer_name' => ['required', 'string', 'max:255'],
             'customer_email' => ['nullable', 'email', 'max:255'],
-            'customer_contact' => ['required', 'string', 'max:30'],
+            'customer_contact' => $contactRules,
             'discount_amount' => ['nullable', 'numeric', 'min:0'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.id' => ['required', 'integer'],
@@ -92,9 +103,23 @@ class VendorPosController extends Controller
             ], 422);
         }
 
+        $payload = $validator->validated();
+
+        $status = $payload['status'] ?? $status;
+
         $vendorId = auth()->id();
-        $discount = (float) ($request->input('discount_amount', 0));
-        $itemPayload = collect($request->input('items', []));
+        $discount = (float) ($payload['discount_amount'] ?? 0);
+        $itemPayload = collect($payload['items'] ?? []);
+        $customerName = $payload['customer_name'];
+        $customerEmail = $payload['customer_email'] ?? null;
+        $customerContact = $payload['customer_contact'] ?? null;
+
+        if (is_string($customerContact) && trim($customerContact) === '') {
+            $customerContact = null;
+        }
+        if (is_string($customerEmail) && trim($customerEmail) === '') {
+            $customerEmail = null;
+        }
 
         $menuRecords = VendorMenu::query()
             ->where('vendor_id', $vendorId)
@@ -182,15 +207,16 @@ class VendorPosController extends Controller
 
         $order = null;
 
-        DB::transaction(function () use (&$order, $vendorId, $request, $subtotal, $discount, $total, $items) {
+        DB::transaction(function () use (&$order, $vendorId, $customerName, $customerEmail, $customerContact, $subtotal, $discount, $total, $items, $status) {
             $order = PosOrder::create([
                 'vendor_id' => $vendorId,
-                'customer_name' => $request->input('customer_name'),
-                'customer_email' => $request->input('customer_email'),
-                'customer_contact' => $request->input('customer_contact'),
+                'customer_name' => $customerName,
+                'customer_email' => $customerEmail,
+                'customer_contact' => $customerContact ?? '',
                 'subtotal' => $subtotal,
                 'discount_amount' => $discount,
                 'total_amount' => $total,
+                'status' => $status,
             ]);
 
             foreach ($items as $item) {
@@ -200,9 +226,10 @@ class VendorPosController extends Controller
 
         return response()->json([
             'status' => 1,
-            'message' => 'Order created successfully.',
+            'message' => $status === 'draft' ? 'Order saved as draft.' : 'Order created successfully.',
             'order_id' => $order->id,
             'reference' => str_pad((string) $order->id, 6, '0', STR_PAD_LEFT),
+            'order_status' => $status,
         ]);
     }
 
@@ -228,6 +255,7 @@ class VendorPosController extends Controller
                     'customer_email' => $order->customer_email,
                     'customer_contact' => $order->customer_contact,
                     'total_amount' => (float) $order->total_amount,
+                    'status' => $order->status,
                     'created_at' => $order->created_at->toDateTimeString(),
                 ];
             })->values();
@@ -254,6 +282,7 @@ class VendorPosController extends Controller
             'subtotal' => (float) $order->subtotal,
             'discount_amount' => (float) $order->discount_amount,
             'total_amount' => (float) $order->total_amount,
+            'status' => $order->status,
             'created_at' => $order->created_at->toDateTimeString(),
             'items' => $order->items->map(function (PosOrderItem $item) {
                 return [
@@ -280,6 +309,41 @@ class VendorPosController extends Controller
         return view('vendor.pos.print', [
             'order' => $order,
             'vendor' => $vendor,
+        ]);
+    }
+
+    public function update(Request $request, PosOrder $order)
+    {
+        if ($order->vendor_id !== auth()->id()) {
+            abort(404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'status' => ['required', Rule::in(['draft', 'completed'])],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 0,
+                'errors' => $validator->errors()->all(),
+            ], 422);
+        }
+
+        $status = $validator->validated()['status'];
+
+        if ($order->status === $status) {
+            return response()->json([
+                'status' => 1,
+                'message' => 'Order status is already up to date.',
+            ]);
+        }
+
+        $order->update(['status' => $status]);
+
+        return response()->json([
+            'status' => 1,
+            'message' => $status === 'draft' ? 'Order moved back to draft.' : 'Order confirmed successfully.',
+            'order_status' => $status,
         ]);
     }
 }
