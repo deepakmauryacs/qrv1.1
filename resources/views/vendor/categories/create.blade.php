@@ -19,10 +19,11 @@
             <form id="createCategoryForm" action="{{ route('vendor.categories.store') }}" method="POST" novalidate>
                 @csrf
                 <div class="row">
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6 mb-3 position-relative">
                         <label for="create-name" class="form-label">Category Name <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="create-name" name="name" placeholder="e.g., Starters">
                         <div class="invalid-feedback"></div>
+                        <div id="category-suggestions" class="list-group position-absolute w-100 shadow-sm d-none" style="z-index: 1050;"></div>
                     </div>
 
                     <div class="col-md-6 mb-3">
@@ -62,6 +63,11 @@ $(function () {
     const form = $('#createCategoryForm');
     const submitButton = form.find('button[type="submit"]');
     const redirectUrl = '{{ route('vendor.categories.index') }}';
+    const nameInput = $('#create-name');
+    const suggestionBox = $('#category-suggestions');
+    const suggestionUrl = '{{ route('vendor.categories.suggestions') }}';
+    let suggestionRequest = null;
+    let suggestionTimer = null;
 
     // Custom validation logic
     function validateForm() {
@@ -85,7 +91,7 @@ $(function () {
         form.find('.invalid-feedback').text('');
 
         // Validate Category Name
-        const name = $('#create-name');
+        const name = nameInput;
         const trimmedName = $.trim(name.val());
         if (trimmedName === '') {
             showError(name, 'Please enter a category name.');
@@ -128,6 +134,100 @@ $(function () {
 
         return isValid;
     }
+
+    function hideSuggestions() {
+        if (suggestionTimer) {
+            clearTimeout(suggestionTimer);
+            suggestionTimer = null;
+        }
+
+        if (suggestionRequest) {
+            suggestionRequest.abort();
+            suggestionRequest = null;
+        }
+
+        suggestionBox.addClass('d-none').empty();
+    }
+
+    function renderSuggestions(items) {
+        if (!Array.isArray(items) || items.length === 0) {
+            hideSuggestions();
+            return;
+        }
+
+        const fragment = document.createDocumentFragment();
+        items.forEach((item) => {
+            const button = $('<button/>', {
+                type: 'button',
+                class: 'list-group-item list-group-item-action',
+                'data-value': item,
+                text: item,
+            })[0];
+
+            fragment.appendChild(button);
+        });
+
+        suggestionBox.empty().append(fragment).removeClass('d-none');
+    }
+
+    function fetchSuggestions(term) {
+        if (suggestionRequest) {
+            suggestionRequest.abort();
+        }
+
+        suggestionRequest = $.ajax({
+            url: suggestionUrl,
+            method: 'GET',
+            data: { q: term },
+        })
+            .done((response) => {
+                if (response.status === 1) {
+                    renderSuggestions(response.data || []);
+                } else {
+                    hideSuggestions();
+                }
+            })
+            .fail(() => {
+                hideSuggestions();
+            })
+            .always(() => {
+                suggestionRequest = null;
+            });
+    }
+
+    nameInput.on('input', function () {
+        const term = $.trim($(this).val());
+
+        if (suggestionTimer) {
+            clearTimeout(suggestionTimer);
+        }
+
+        if (term.length < 2) {
+            hideSuggestions();
+            return;
+        }
+
+        suggestionTimer = setTimeout(() => fetchSuggestions(term), 200);
+    });
+
+    nameInput.on('focus', function () {
+        const term = $.trim($(this).val());
+        if (term.length >= 2 && suggestionBox.children().length === 0) {
+            fetchSuggestions(term);
+        }
+    });
+
+    suggestionBox.on('click', 'button', function () {
+        const value = $(this).data('value');
+        nameInput.val(value);
+        hideSuggestions();
+    });
+
+    $(document).on('click', function (event) {
+        if (!$(event.target).closest('#create-name, #category-suggestions').length) {
+            hideSuggestions();
+        }
+    });
 
     // Error toaster aggregator
     function handleErrors(messages) {
