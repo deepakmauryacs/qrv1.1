@@ -12,11 +12,29 @@
     </div>
 
     <div class="card shadow-sm">
-        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Recent POS Orders</h5>
-            <button type="button" class="btn btn-outline-primary btn-sm" id="refreshOrders">
-                <i class="bi bi-arrow-clockwise"></i> Refresh
-            </button>
+        <div class="card-header bg-white py-3">
+            <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
+                <h5 class="mb-3 mb-lg-0">Recent POS Orders</h5>
+                <div class="d-flex flex-column flex-lg-row align-items-lg-center">
+                    <div class="form-inline mb-2 mb-lg-0">
+                        <label class="mr-2" for="filterStartDate">From</label>
+                        <input type="date" class="form-control form-control-sm mr-3" id="filterStartDate">
+                        <label class="mr-2" for="filterEndDate">To</label>
+                        <input type="date" class="form-control form-control-sm mr-3" id="filterEndDate">
+                    </div>
+                    <div class="btn-group mb-2 mb-lg-0" role="group">
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="applyFilters">
+                            <i class="bi bi-funnel"></i> Apply
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" id="resetFilters">
+                            <i class="bi bi-arrow-counterclockwise"></i> Reset
+                        </button>
+                    </div>
+                    <button type="button" class="btn btn-outline-primary btn-sm ml-lg-2" id="refreshOrders">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh
+                    </button>
+                </div>
+            </div>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -25,7 +43,6 @@
                         <tr>
                             <th>Order #</th>
                             <th>Customer</th>
-                            <th>Email</th>
                             <th>Contact</th>
                             <th class="text-right">Total</th>
                             <th>Status</th>
@@ -35,7 +52,7 @@
                     </thead>
                     <tbody>
                         <tr id="ordersEmptyRow">
-                            <td colspan="8" class="text-center text-muted py-3">No orders yet</td>
+                            <td colspan="7" class="text-center text-muted py-3">No orders yet</td>
                         </tr>
                     </tbody>
                 </table>
@@ -144,8 +161,25 @@
 
     let currentOrderId = null;
 
+    const getOrderFilters = () => {
+        const startDate = $('#filterStartDate').val();
+        const endDate = $('#filterEndDate').val();
+
+        const params = {};
+
+        if (startDate) {
+            params.start_date = startDate;
+        }
+
+        if (endDate) {
+            params.end_date = endDate;
+        }
+
+        return params;
+    };
+
     const loadOrders = () => {
-        $.get(ordersUrl)
+        $.get(ordersUrl, getOrderFilters())
             .done(response => {
                 const data = response.data || [];
                 const body = $('#orderHistoryTable tbody');
@@ -161,7 +195,6 @@
                     const row = $('<tr>');
                     $('<td>').html(`<strong>#${order.reference}</strong>`).appendTo(row);
                     $('<td>').text(order.customer_name).appendTo(row);
-                    $('<td>').text(order.customer_email || '-').appendTo(row);
                     $('<td>').text(order.customer_contact || '-').appendTo(row);
                     $('<td>').addClass('text-right').text(`₹ ${formatMoney(order.total_amount)}`).appendTo(row);
                     const statusBadge = $('<span>').addClass(statusClass(order.status)).text(statusLabel(order.status));
@@ -233,6 +266,16 @@
         loadOrders();
 
         $('#refreshOrders').on('click', function () {
+            loadOrders();
+        });
+
+        $('#applyFilters').on('click', function () {
+            loadOrders();
+        });
+
+        $('#resetFilters').on('click', function () {
+            $('#filterStartDate').val('');
+            $('#filterEndDate').val('');
             loadOrders();
         });
 
