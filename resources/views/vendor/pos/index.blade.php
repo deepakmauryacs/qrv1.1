@@ -46,16 +46,34 @@
         </div>
         <div class="col-lg-5 mb-4">
             <div class="card shadow-sm h-100">
-                <div class="card-header bg-white py-3">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Order Summary</h5>
+                    <a href="{{ url('vendor/pos') }}" class="small" target="_blank" rel="noopener">
+                        {{ url('vendor/pos') }}
+                    </a>
                 </div>
                 <div class="card-body">
+                    <form id="customerForm" class="mb-4">
+                        <div class="form-group">
+                            <label for="customerName">Customer Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="customerName" placeholder="Walk-in Customer" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="customerEmail">Customer Email</label>
+                            <input type="email" class="form-control" id="customerEmail" placeholder="customer@example.com">
+                        </div>
+                        <div class="form-group mb-0">
+                            <label for="customerContact">Contact Number <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="customerContact" placeholder="Contact number" required>
+                        </div>
+                    </form>
+
                     <div class="table-responsive">
                         <table class="table table-sm align-middle" id="cartTable">
                             <thead class="thead-light">
                                 <tr>
                                     <th>Item</th>
-                                    <th class="text-center" style="width: 80px;">Qty</th>
+                                    <th class="text-center" style="width: 120px;">Qty</th>
                                     <th class="text-right" style="width: 90px;">Price</th>
                                     <th class="text-right" style="width: 100px;">Total</th>
                                     <th></th>
@@ -83,23 +101,6 @@
                             <strong id="totalAmount">0.00</strong>
                         </div>
                     </div>
-
-                    <hr>
-
-                    <form id="customerForm">
-                        <div class="form-group">
-                            <label for="customerName">Customer Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="customerName" placeholder="Walk-in Customer" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="customerEmail">Customer Email</label>
-                            <input type="email" class="form-control" id="customerEmail" placeholder="customer@example.com">
-                        </div>
-                        <div class="form-group">
-                            <label for="customerContact">Contact Number <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="customerContact" placeholder="Contact number" required>
-                        </div>
-                    </form>
 
                     <div class="d-flex justify-content-between mt-4">
                         <button type="button" class="btn btn-outline-secondary" id="clearCart">
@@ -286,11 +287,11 @@
                 const row = $('<tr>');
                 $('<td>').text(item.name).appendTo(row);
 
-                const qtyCell = $('<td>').addClass('text-center');
-                const qtyGroup = $('<div>').addClass('input-group input-group-sm justify-content-center');
-                const decrease = $('<button>').addClass('btn btn-outline-secondary btn-sm quantity-decrease').data('id', item.id).append($('<i>').addClass('bi bi-dash'));
-                const increase = $('<button>').addClass('btn btn-outline-secondary btn-sm quantity-increase').data('id', item.id).append($('<i>').addClass('bi bi-plus'));
-                const qtyInput = $('<input>').attr({ type: 'number', min: 1 }).addClass('form-control form-control-sm text-center cart-quantity').data('id', item.id).val(item.quantity);
+                const qtyCell = $('<td>').addClass('text-center align-middle');
+                const qtyGroup = $('<div>').addClass('input-group input-group-sm justify-content-center flex-nowrap');
+                const decrease = $('<button>').attr('type', 'button').addClass('btn btn-outline-secondary quantity-decrease').data('id', item.id).append($('<i>').addClass('bi bi-dash'));
+                const increase = $('<button>').attr('type', 'button').addClass('btn btn-outline-secondary quantity-increase').data('id', item.id).append($('<i>').addClass('bi bi-plus'));
+                const qtyInput = $('<input>').attr({ type: 'number', min: 1 }).addClass('form-control form-control-sm text-center cart-quantity').css('width', '60px').data('id', item.id).val(item.quantity);
                 $('<div>').addClass('input-group-prepend').append(decrease).appendTo(qtyGroup);
                 qtyGroup.append(qtyInput);
                 $('<div>').addClass('input-group-append').append(increase).appendTo(qtyGroup);
