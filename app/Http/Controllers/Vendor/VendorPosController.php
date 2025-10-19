@@ -10,6 +10,7 @@ use App\Models\VendorMenu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class VendorPosController extends Controller
 {
@@ -81,6 +82,7 @@ class VendorPosController extends Controller
             'items' => ['required', 'array', 'min:1'],
             'items.*.id' => ['required', 'integer'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
+            'items.*.price_type' => ['nullable', Rule::in(['full', 'half'])],
         ]);
 
         if ($validator->fails()) {
@@ -110,21 +112,66 @@ class VendorPosController extends Controller
         $subtotal = 0;
         $items = [];
 
+        $errors = [];
+
         foreach ($itemPayload as $item) {
             $menu = $menuRecords->get($item['id']);
             $quantity = (int) $item['quantity'];
-            $priceCandidate = $menu->price_full ?? $menu->price_half ?? 0;
-            $unitPrice = (float) $priceCandidate;
+            $priceType = $item['price_type'] ?? null;
+            $unitPrice = 0;
+            $nameSuffix = '';
+
+            if ($priceType === 'full') {
+                if (is_null($menu->price_full)) {
+                    $errors[] = "Full price is not available for {$menu->name}.";
+                    continue;
+                }
+                $unitPrice = (float) $menu->price_full;
+                $nameSuffix = ' (Full)';
+            } elseif ($priceType === 'half') {
+                if (is_null($menu->price_half)) {
+                    $errors[] = "Half price is not available for {$menu->name}.";
+                    continue;
+                }
+                $unitPrice = (float) $menu->price_half;
+                $nameSuffix = ' (Half)';
+            } else {
+                if (!is_null($menu->price_full)) {
+                    $unitPrice = (float) $menu->price_full;
+                    $priceType = 'full';
+                    $nameSuffix = ' (Full)';
+                } elseif (!is_null($menu->price_half)) {
+                    $unitPrice = (float) $menu->price_half;
+                    $priceType = 'half';
+                    $nameSuffix = ' (Half)';
+                } else {
+                    $errors[] = "Price is not configured for {$menu->name}.";
+                    continue;
+                }
+            }
+
+            if ($unitPrice <= 0) {
+                $errors[] = "Price is not available for {$menu->name}.";
+                continue;
+            }
+
             $lineTotal = $unitPrice * $quantity;
             $subtotal += $lineTotal;
 
             $items[] = [
                 'vendor_menu_id' => $menu->id,
-                'item_name' => $menu->name,
+                'item_name' => $menu->name . $nameSuffix,
                 'unit_price' => $unitPrice,
                 'quantity' => $quantity,
                 'line_total' => $lineTotal,
             ];
+        }
+
+        if (!empty($errors)) {
+            return response()->json([
+                'status' => 0,
+                'errors' => $errors,
+            ], 422);
         }
 
         if ($discount > $subtotal) {

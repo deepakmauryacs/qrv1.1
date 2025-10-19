@@ -254,6 +254,15 @@
     let currentOrderId = null;
 
     const formatMoney = (value) => parseFloat(value || 0).toFixed(2);
+    const priceTypeLabel = (type) => {
+        if (type === 'half') {
+            return 'Half';
+        }
+        if (type === 'full') {
+            return 'Full';
+        }
+        return '';
+    };
 
     const debounce = (func, wait = 300) => {
         let timeout;
@@ -275,14 +284,84 @@
 
         $('<h6>').addClass('mb-1 text-dark').text(item.name).appendTo(body);
         $('<small>').addClass('text-muted d-block mb-2').text(item.description ? item.description.substring(0, 60) : '').appendTo(body);
-        $('<span>').addClass('badge badge-light border').text(item.price ? `₹ ${formatMoney(item.price)}` : 'Price unavailable').appendTo(body);
+        const priceRow = $('<div>').addClass('d-flex align-items-center justify-content-between mb-2');
+        const priceBadge = $('<span>').addClass('badge badge-light border mb-0 price-display');
+        const priceOptions = [];
+
+        if (item.price_full !== null && item.price_full !== undefined) {
+            priceOptions.push({ type: 'full', value: parseFloat(item.price_full) });
+        }
+
+        if (item.price_half !== null && item.price_half !== undefined) {
+            priceOptions.push({ type: 'half', value: parseFloat(item.price_half) });
+        }
+
+        let defaultOption = priceOptions.length ? priceOptions[0] : null;
+        let priceSelect = null;
+
+        if (priceOptions.length) {
+            priceSelect = $('<select>').addClass('custom-select custom-select-sm price-type-select w-auto');
+
+            priceOptions.forEach(option => {
+                const optionElement = $('<option>')
+                    .val(option.type)
+                    .data('price', option.value)
+                    .text(`${priceTypeLabel(option.type)} - ₹ ${formatMoney(option.value)}`);
+                priceSelect.append(optionElement);
+            });
+
+            if (defaultOption) {
+                priceSelect.val(defaultOption.type);
+            }
+
+            if (priceOptions.length === 1) {
+                priceSelect.prop('disabled', true);
+            }
+
+            const selectWrapper = $('<div>').addClass('ml-2');
+            selectWrapper.append(priceSelect);
+            priceRow.append(priceBadge).append(selectWrapper);
+        } else {
+            priceRow.append(priceBadge);
+        }
+
+        const updatePriceBadge = () => {
+            if (!priceOptions.length) {
+                priceBadge.text('Price unavailable');
+                return;
+            }
+
+            let priceType = defaultOption ? defaultOption.type : null;
+            let priceValue = defaultOption ? defaultOption.value : 0;
+
+            if (priceSelect) {
+                priceType = priceSelect.val();
+                const selectedOption = priceSelect.find('option:selected');
+                priceValue = parseFloat(selectedOption.data('price')) || 0;
+            }
+
+            if (priceValue > 0) {
+                priceBadge.text(`₹ ${formatMoney(priceValue)} (${priceTypeLabel(priceType)})`);
+            } else {
+                priceBadge.text('Price unavailable');
+            }
+        };
+
+        updatePriceBadge();
+
+        if (priceSelect) {
+            priceSelect.on('change', updatePriceBadge);
+        }
+
+        body.append(priceRow);
 
         const button = $('<button>').addClass('btn btn-sm btn-primary add-to-cart')
             .append($('<i>').addClass('bi bi-plus-circle'))
             .append(' Add');
         button.data('id', item.id);
         button.data('name', item.name);
-        button.data('price', item.price);
+        button.data('price', defaultOption ? defaultOption.value : 0);
+        button.data('priceType', defaultOption ? defaultOption.type : null);
 
         footer.append(button);
         card.append(body).append(footer);
@@ -326,13 +405,14 @@
             $('#cartEmptyRow').hide();
             cart.forEach(item => {
                 const row = $('<tr>');
-                $('<td>').text(item.name).appendTo(row);
+                const itemName = item.priceType ? `${item.name} (${priceTypeLabel(item.priceType)})` : item.name;
+                $('<td>').text(itemName).appendTo(row);
 
                 const qtyCell = $('<td>').addClass('text-center align-middle');
                 const qtyGroup = $('<div>').addClass('input-group input-group-sm justify-content-center flex-nowrap');
-                const decrease = $('<button>').attr('type', 'button').addClass('btn btn-outline-secondary quantity-decrease').data('id', item.id).append($('<i>').addClass('bi bi-dash'));
-                const increase = $('<button>').attr('type', 'button').addClass('btn btn-outline-secondary quantity-increase').data('id', item.id).append($('<i>').addClass('bi bi-plus'));
-                const qtyInput = $('<input>').attr({ type: 'number', min: 1 }).addClass('form-control form-control-sm text-center cart-quantity').css('width', '60px').data('id', item.id).val(item.quantity);
+                const decrease = $('<button>').attr('type', 'button').addClass('btn btn-outline-secondary quantity-decrease').data('key', item.key).append($('<i>').addClass('bi bi-dash'));
+                const increase = $('<button>').attr('type', 'button').addClass('btn btn-outline-secondary quantity-increase').data('key', item.key).append($('<i>').addClass('bi bi-plus'));
+                const qtyInput = $('<input>').attr({ type: 'number', min: 1 }).addClass('form-control form-control-sm text-center cart-quantity').css('width', '60px').data('key', item.key).val(item.quantity);
                 $('<div>').addClass('input-group-prepend').append(decrease).appendTo(qtyGroup);
                 qtyGroup.append(qtyInput);
                 $('<div>').addClass('input-group-append').append(increase).appendTo(qtyGroup);
@@ -342,7 +422,7 @@
                 $('<td>').addClass('text-right').text(`₹ ${formatMoney(item.price * item.quantity)}`).appendTo(row);
 
                 const removeCell = $('<td>').addClass('text-right');
-                const removeButton = $('<button>').addClass('btn btn-link text-danger p-0 remove-item').data('id', item.id).append($('<i>').addClass('bi bi-trash'));
+                const removeButton = $('<button>').addClass('btn btn-link text-danger p-0 remove-item').data('key', item.key).append($('<i>').addClass('bi bi-trash'));
                 removeCell.append(removeButton).appendTo(row);
 
                 body.append(row);
@@ -428,34 +508,45 @@
         $('#productSearch').on('input', debounce(loadProducts, 400));
 
         $('#productList').on('click', '.add-to-cart', function () {
-            const id = parseInt($(this).data('id'), 10);
-            const name = $(this).data('name');
-            const price = parseFloat($(this).data('price')) || 0;
+            const button = $(this);
+            const id = parseInt(button.data('id'), 10);
+            const name = button.data('name');
+            let price = parseFloat(button.data('price')) || 0;
+            let priceType = button.data('priceType') || null;
+            const card = button.closest('.product-card');
+            const priceSelect = card.find('.price-type-select');
+
+            if (priceSelect.length) {
+                priceType = priceSelect.val();
+                const selectedOption = priceSelect.find('option:selected');
+                price = parseFloat(selectedOption.data('price')) || 0;
+            }
 
             if (!price) {
                 toastr.warning('Price is not available for this item.');
                 return;
             }
 
-            const existing = cart.find(item => item.id === id);
+            const key = `${id}-${priceType || 'default'}`;
+            const existing = cart.find(item => item.key === key);
             if (existing) {
                 existing.quantity += 1;
             } else {
-                cart.push({ id, name, price, quantity: 1 });
+                cart.push({ key, id, name, priceType, price, quantity: 1 });
             }
 
             renderCart();
         });
 
         $('#cartTable').on('click', '.remove-item', function () {
-            const id = parseInt($(this).data('id'), 10);
-            cart = cart.filter(item => item.id !== id);
+            const key = $(this).data('key');
+            cart = cart.filter(item => item.key !== key);
             renderCart();
         });
 
         $('#cartTable').on('click', '.quantity-increase', function () {
-            const id = parseInt($(this).data('id'), 10);
-            const item = cart.find(entry => entry.id === id);
+            const key = $(this).data('key');
+            const item = cart.find(entry => entry.key === key);
             if (item) {
                 item.quantity += 1;
                 renderCart();
@@ -463,8 +554,8 @@
         });
 
         $('#cartTable').on('click', '.quantity-decrease', function () {
-            const id = parseInt($(this).data('id'), 10);
-            const item = cart.find(entry => entry.id === id);
+            const key = $(this).data('key');
+            const item = cart.find(entry => entry.key === key);
             if (item && item.quantity > 1) {
                 item.quantity -= 1;
                 renderCart();
@@ -472,12 +563,12 @@
         });
 
         $('#cartTable').on('change', '.cart-quantity', function () {
-            const id = parseInt($(this).data('id'), 10);
+            const key = $(this).data('key');
             let value = parseInt($(this).val(), 10);
             if (Number.isNaN(value) || value < 1) {
                 value = 1;
             }
-            const item = cart.find(entry => entry.id === id);
+            const item = cart.find(entry => entry.key === key);
             if (item) {
                 item.quantity = value;
                 renderCart();
@@ -521,6 +612,7 @@
                 items: cart.map(item => ({
                     id: item.id,
                     quantity: item.quantity,
+                    price_type: item.priceType,
                 })),
             };
 
