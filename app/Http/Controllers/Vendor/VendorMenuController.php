@@ -169,6 +169,13 @@ class VendorMenuController extends Controller {
 
     public function getMenusByCategory(Request $request)
     {
+        $vendorId = auth()->id();
+        $menuCategory = MenuCategory::find($request->category_id);
+
+        if ($menuCategory) {
+            $this->ensureVendorCategoryExists($vendorId, $menuCategory);
+        }
+
         $query = Menu::where('menu_category_id', $request->category_id);
 
         // Apply Type filter (Veg/Non-Veg) if selected
@@ -183,7 +190,6 @@ class VendorMenuController extends Controller {
 
         $menus = $query->get();
 
-        $vendorId = auth()->id(); // Get the logged-in vendor's ID
         $vendor_menus = VendorMenu::select('name')
             ->where('vendor_id', $vendorId) // Filter by authenticated vendor
             ->where('menu_category_id', $request->category_id) // Filter by authenticated vendor
@@ -201,8 +207,15 @@ class VendorMenuController extends Controller {
             return response()->json(['success' => false, 'message' => 'Menu item not found.']);
         }
 
+        $menuCategory = $menu->menuCategory;
+        $vendorId = auth()->id();
+
+        if ($menuCategory) {
+            $this->ensureVendorCategoryExists($vendorId, $menuCategory);
+        }
+
         // Check if the menu already exists for this vendor
-        $existingMenu = VendorMenu::where('vendor_id', auth()->id())
+        $existingMenu = VendorMenu::where('vendor_id', $vendorId)
             ->where('name', $menu->name)
             ->first();
 
@@ -211,7 +224,7 @@ class VendorMenuController extends Controller {
         }
 
         $vendorMenu = new VendorMenu();
-        $vendorMenu->vendor_id = auth()->id();
+        $vendorMenu->vendor_id = $vendorId;
         $vendorMenu->language = $menu->language;
         $vendorMenu->menu_category_id = $menu->menu_category_id;
         $vendorMenu->name = $menu->name;
@@ -338,7 +351,7 @@ class VendorMenuController extends Controller {
 
     public function destroy($id)
     {
-       
+
             // Find the menu item by its ID
             $menu = VendorMenu::findOrFail($id);
 
@@ -350,8 +363,35 @@ class VendorMenuController extends Controller {
                 'status' => 1,
                 'message' => 'Menu item deleted successfully!'
             ]);
-     
+
     }
 
+
+    private function ensureVendorCategoryExists(int $vendorId, MenuCategory $menuCategory): ?VendorCategory
+    {
+        $categoryName = $menuCategory->name ?? $menuCategory->category_name ?? null;
+
+        if (!$categoryName) {
+            return null;
+        }
+
+        $existingCategory = VendorCategory::where('vendor_id', $vendorId)
+            ->where('name', $categoryName)
+            ->first();
+
+        if ($existingCategory) {
+            return $existingCategory;
+        }
+
+        $displayOrder = VendorCategory::where('vendor_id', $vendorId)->max('display_order');
+
+        return VendorCategory::create([
+            'vendor_id' => $vendorId,
+            'name' => $categoryName,
+            'description' => $menuCategory->description ?? null,
+            'display_order' => $displayOrder !== null ? $displayOrder + 1 : 0,
+            'is_active' => true,
+        ]);
+    }
 
 }
