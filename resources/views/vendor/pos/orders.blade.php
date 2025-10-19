@@ -28,13 +28,14 @@
                             <th>Email</th>
                             <th>Contact</th>
                             <th class="text-right">Total</th>
+                            <th>Status</th>
                             <th class="text-right">Created</th>
                             <th class="text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr id="ordersEmptyRow">
-                            <td colspan="7" class="text-center text-muted py-3">No orders yet</td>
+                            <td colspan="8" class="text-center text-muted py-3">No orders yet</td>
                         </tr>
                     </tbody>
                 </table>
@@ -58,6 +59,7 @@
                     <div><strong>Customer:</strong> <span id="detailCustomer"></span></div>
                     <div><strong>Contact:</strong> <span id="detailContact"></span></div>
                     <div><strong>Email:</strong> <span id="detailEmail"></span></div>
+                    <div><strong>Status:</strong> <span id="detailStatus" class="badge badge-secondary"></span></div>
                     <div><strong>Created At:</strong> <span id="detailCreated"></span></div>
                 </div>
                 <div class="table-responsive">
@@ -100,8 +102,20 @@
     const ordersUrl = "{{ route('vendor.pos.orders.list') }}";
     const orderShowTemplate = "{{ route('vendor.pos.orders.show', ['order' => '__ORDER__']) }}";
     const orderPrintTemplate = "{{ route('vendor.pos.orders.print', ['order' => '__ORDER__']) }}";
+    const orderUpdateTemplate = "{{ route('vendor.pos.orders.update', ['order' => '__ORDER__']) }}";
+    const csrfToken = "{{ csrf_token() }}";
 
     const formatMoney = (value) => parseFloat(value || 0).toFixed(2);
+    const statusLabel = (status) => {
+        if (status === 'draft') return 'Draft';
+        if (status === 'completed') return 'Completed';
+        return status ? status.charAt(0).toUpperCase() + status.slice(1) : '—';
+    };
+    const statusClass = (status) => {
+        if (status === 'draft') return 'badge badge-warning';
+        if (status === 'completed') return 'badge badge-success';
+        return 'badge badge-secondary';
+    };
 
     let currentOrderId = null;
 
@@ -123,8 +137,10 @@
                     $('<td>').html(`<strong>#${order.reference}</strong>`).appendTo(row);
                     $('<td>').text(order.customer_name).appendTo(row);
                     $('<td>').text(order.customer_email || '-').appendTo(row);
-                    $('<td>').text(order.customer_contact).appendTo(row);
+                    $('<td>').text(order.customer_contact || '-').appendTo(row);
                     $('<td>').addClass('text-right').text(`₹ ${formatMoney(order.total_amount)}`).appendTo(row);
+                    const statusBadge = $('<span>').addClass(statusClass(order.status)).text(statusLabel(order.status));
+                    $('<td>').append(statusBadge).appendTo(row);
                     $('<td>').addClass('text-right').text(order.created_at).appendTo(row);
 
                     const actionCell = $('<td>').addClass('text-right');
@@ -132,6 +148,13 @@
                     const viewBtn = $('<button>').addClass('btn btn-outline-primary view-order').data('id', order.id).append($('<i>').addClass('bi bi-eye'));
                     const printBtn = $('<button>').addClass('btn btn-outline-secondary print-order').data('id', order.id).append($('<i>').addClass('bi bi-printer'));
                     group.append(viewBtn, printBtn);
+
+                    if (order.status === 'draft') {
+                        const convertBtn = $('<button>').addClass('btn btn-success convert-order').data('id', order.id).append($('<i>').addClass('bi bi-check2-circle'));
+                        convertBtn.attr('title', 'Convert to confirmed order');
+                        group.append(convertBtn);
+                    }
+
                     actionCell.append(group).appendTo(row);
                     body.append(row);
                 });
@@ -155,8 +178,9 @@
                     currentOrderId = response.id;
                     $('#detailOrderNumber').text(`#${response.reference}`);
                     $('#detailCustomer').text(response.customer_name);
-                    $('#detailContact').text(response.customer_contact);
+                    $('#detailContact').text(response.customer_contact || '-');
                     $('#detailEmail').text(response.customer_email || '-');
+                    $('#detailStatus').attr('class', statusClass(response.status)).text(statusLabel(response.status));
                     $('#detailCreated').text(response.created_at);
 
                     const itemsBody = $('#detailItems');
@@ -182,6 +206,28 @@
             const id = $(this).data('id');
             const url = orderPrintTemplate.replace('__ORDER__', id);
             window.open(url, '_blank');
+        });
+
+        $('#orderHistoryTable').on('click', '.convert-order', function () {
+            const id = $(this).data('id');
+            const url = orderUpdateTemplate.replace('__ORDER__', id);
+
+            $.ajax({
+                url: url,
+                method: 'PATCH',
+                contentType: 'application/json',
+                data: JSON.stringify({ status: 'completed' }),
+                headers: { 'X-CSRF-TOKEN': csrfToken }
+            })
+            .done(response => {
+                toastr.success(response.message || 'Order converted successfully.');
+                loadOrders();
+            })
+            .fail(error => {
+                if (error.responseJSON && error.responseJSON.errors)
+                    error.responseJSON.errors.forEach(m => toastr.error(m));
+                else toastr.error('Unable to update the order status.');
+            });
         });
 
         $('#detailPrint').on('click', function () {

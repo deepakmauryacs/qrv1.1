@@ -17,6 +17,7 @@ class PosOrder extends Model
         'subtotal',
         'discount_amount',
         'total_amount',
+        'status',
     ];
 
     public function items()
