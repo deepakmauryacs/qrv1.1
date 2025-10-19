@@ -166,6 +166,7 @@ Route::prefix('vendor')->group(function () {
 
         Route::prefix('pos')->name('vendor.pos.')->group(function () {
             Route::get('/', [VendorPosController::class, 'index'])->name('index');
+            Route::get('/categories', [VendorPosController::class, 'categories'])->name('categories');
             Route::get('/products', [VendorPosController::class, 'products'])->name('products');
             Route::get('/orders', [VendorPosController::class, 'orders'])->name('orders');
             Route::get('/orders/list', [VendorPosController::class, 'ordersList'])->name('orders.list');

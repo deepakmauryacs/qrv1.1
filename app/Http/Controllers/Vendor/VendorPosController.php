@@ -31,6 +31,22 @@ class VendorPosController extends Controller
         ]);
     }
 
+    public function categories()
+    {
+        $vendorId = auth()->id();
+
+        $categories = VendorCategory::query()
+            ->where('vendor_id', $vendorId)
+            ->where('is_active', true)
+            ->orderBy('display_order')
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        return response()->json([
+            'data' => $categories,
+        ]);
+    }
+
     public function products(Request $request)
     {
         $vendorId = auth()->id();

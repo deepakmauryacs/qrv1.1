@@ -97,9 +97,6 @@
                             <label for="categoryFilter" class="small text-muted text-uppercase font-weight-bold">Categories</label>
                             <select class="custom-select custom-select-sm" id="categoryFilter">
                                 <option value="">All</option>
-                                @foreach ($categories as $category)
-                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
-                                @endforeach
                             </select>
                         </div>
                     </div>
@@ -186,15 +183,43 @@
 
 <script>
     const productsUrl = "{{ route('vendor.pos.products') }}";
+    const categoriesUrl = "{{ route('vendor.pos.categories') }}";
     const orderStoreUrl = "{{ route('vendor.pos.orders.store') }}";
     const orderPrintTemplate = "{{ route('vendor.pos.orders.print', ['order' => '__ORDER__']) }}";
     const csrfToken = "{{ csrf_token() }}";
+
+    const initialCategories = @json($categories);
 
     let activeCategory = '';
     let cart = [];
 
     const formatMoney = (value) => parseFloat(value || 0).toFixed(2);
     const priceTypeLabel = (type) => type === 'half' ? 'Half' : (type === 'full' ? 'Full' : '');
+
+    const populateCategoryFilter = (categories) => {
+        const select = $('#categoryFilter');
+        const currentValue = select.val();
+
+        select.empty();
+        select.append($('<option>').val('').text('All'));
+
+        (categories || []).forEach(category => {
+            if (!category || typeof category.id === 'undefined') {
+                return;
+            }
+
+            select.append(
+                $('<option>')
+                    .val(category.id)
+                    .text(category.name || '')
+            );
+        });
+
+        if (currentValue) {
+            const exists = (categories || []).some(cat => String(cat.id) === String(currentValue));
+            select.val(exists ? currentValue : '');
+        }
+    };
 
     const debounce = (func, wait = 300) => {
         let timeout;
@@ -428,7 +453,15 @@
     };
 
     $(document).ready(function () {
+        populateCategoryFilter(initialCategories);
         loadProducts();
+
+        $.get(categoriesUrl)
+            .done(response => {
+                if (response && Array.isArray(response.data)) {
+                    populateCategoryFilter(response.data);
+                }
+            });
 
         $('#categoryFilter').on('change', function () {
             activeCategory = $(this).val() || '';
