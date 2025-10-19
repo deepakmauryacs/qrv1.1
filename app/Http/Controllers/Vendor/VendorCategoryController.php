@@ -40,13 +40,9 @@ class VendorCategoryController extends Controller
             ->addIndexColumn()
             ->editColumn('is_active', fn (VendorCategory $category) => $category->is_active ? 'Active' : 'Inactive')
             ->addColumn('action', function (VendorCategory $category) {
-                $escapedDescription = e($category->description ?? '');
-                $escapedName = e($category->name);
-
-                $editButton = '<button type="button" class="btn btn-sm btn-primary btn-edit"'
-                    . ' data-id="' . $category->id . '"'
-                    . ' data-name="' . $escapedName . '"'
-                    . ' data-description="' . $escapedDescription . '"><i class="bi bi-pencil-square"></i> Edit</button>';
+                $editUrl = route('vendor.categories.edit', $category->id);
+                $editButton = '<a href="' . $editUrl . '" class="btn btn-sm btn-primary">'
+                    . '<i class="bi bi-pencil-square"></i> Edit</a>';
 
                 $deleteUrl = route('vendor.categories.destroy', $category->id);
                 $deleteButton = '<button type="button" class="btn btn-sm btn-danger btn-delete"'
@@ -56,6 +52,16 @@ class VendorCategoryController extends Controller
             })
             ->rawColumns(['action'])
             ->make(true);
+    }
+
+    /**
+     * Show the form for editing the specified vendor category.
+     */
+    public function edit(VendorCategory $category)
+    {
+        $this->guardCategory($category);
+
+        return view('vendor.categories.edit', compact('category'));
     }
 
     /**
