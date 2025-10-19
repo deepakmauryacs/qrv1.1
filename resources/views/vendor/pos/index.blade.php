@@ -29,15 +29,14 @@
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <div class="btn-group flex-wrap" role="group" id="categoryFilters">
-                            <button type="button" class="btn btn-sm btn-outline-primary active" data-category="">
-                                All
-                            </button>
-                            @foreach ($categories as $category)
-                                <button type="button" class="btn btn-sm btn-outline-primary" data-category="{{ $category->id }}">
-                                    {{ $category->name }}
-                                </button>
-                            @endforeach
+                        <div class="form-group mb-0">
+                            <label for="categoryFilter" class="small text-muted text-uppercase font-weight-bold">Categories</label>
+                            <select class="custom-select custom-select-sm" id="categoryFilter">
+                                <option value="">All</option>
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                @endforeach
+                            </select>
                         </div>
                     </div>
                     <div id="productFeedback" class="text-center text-muted py-4">Loading menu items...</div>
@@ -379,10 +378,8 @@
         loadProducts();
         loadOrders();
 
-        $('#categoryFilters').on('click', 'button', function () {
-            $('#categoryFilters button').removeClass('active');
-            $(this).addClass('active');
-            activeCategory = $(this).data('category') || '';
+        $('#categoryFilter').on('change', function () {
+            activeCategory = $(this).val() || '';
             loadProducts();
         });
 
