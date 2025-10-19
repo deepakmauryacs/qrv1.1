@@ -24,9 +24,23 @@
                         <input type="text" class="form-control" id="create-name" name="name" placeholder="e.g., Starters" required>
                     </div>
 
+                    <div class="col-md-6 mb-3">
+                        <label for="create-display-order" class="form-label">Display Order</label>
+                        <input type="number" class="form-control" id="create-display-order" name="display_order" value="{{ old('display_order', 0) }}" min="0" step="1">
+                    </div>
+
                     <div class="col-md-12 mb-3">
                         <label for="create-description" class="form-label">Description</label>
                         <textarea class="form-control" id="create-description" name="description" rows="3" placeholder="Optional: describe what is included in this category"></textarea>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label d-block" for="create-is-active">Status</label>
+                        <input type="hidden" name="is_active" value="0">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="create-is-active" name="is_active" value="1" {{ old('is_active', 1) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="create-is-active">Active</label>
+                        </div>
                     </div>
                 </div>
 

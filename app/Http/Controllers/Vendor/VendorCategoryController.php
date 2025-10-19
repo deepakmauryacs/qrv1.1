@@ -74,6 +74,8 @@ class VendorCategoryController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255|unique:vendor_categories,name,NULL,id,vendor_id,' . $vendorId,
             'description' => 'nullable|string|max:1000',
+            'display_order' => 'nullable|integer|min:0',
+            'is_active' => 'required|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -88,10 +90,20 @@ class VendorCategoryController extends Controller
             ? strip_tags(filter_var(trim($request->input('description')), FILTER_SANITIZE_STRING))
             : null;
 
+        $displayOrder = filter_var(
+            $request->input('display_order'),
+            FILTER_VALIDATE_INT,
+            ['options' => ['default' => 0, 'min_range' => 0]]
+        );
+
+        $isActive = $request->boolean('is_active');
+
         $category = VendorCategory::create([
             'vendor_id' => $vendorId,
             'name' => $name,
             'description' => $description,
+            'display_order' => $displayOrder,
+            'is_active' => $isActive,
         ]);
 
         return response()->json([
@@ -113,6 +125,8 @@ class VendorCategoryController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255|unique:vendor_categories,name,' . $category->id . ',id,vendor_id,' . $vendorId,
             'description' => 'nullable|string|max:1000',
+            'display_order' => 'nullable|integer|min:0',
+            'is_active' => 'required|boolean',
         ]);
 
         if ($validator->fails()) {
@@ -127,9 +141,19 @@ class VendorCategoryController extends Controller
             ? strip_tags(filter_var(trim($request->input('description')), FILTER_SANITIZE_STRING))
             : null;
 
+        $displayOrder = filter_var(
+            $request->input('display_order'),
+            FILTER_VALIDATE_INT,
+            ['options' => ['default' => $category->display_order, 'min_range' => 0]]
+        );
+
+        $isActive = $request->boolean('is_active');
+
         $category->update([
             'name' => $name,
             'description' => $description,
+            'display_order' => $displayOrder,
+            'is_active' => $isActive,
         ]);
 
         return response()->json([

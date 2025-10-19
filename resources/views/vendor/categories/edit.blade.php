@@ -25,9 +25,23 @@
                         <input type="text" class="form-control" id="edit-name" name="name" value="{{ old('name', $category->name) }}" required>
                     </div>
 
+                    <div class="col-md-6 mb-3">
+                        <label for="edit-display-order" class="form-label">Display Order</label>
+                        <input type="number" class="form-control" id="edit-display-order" name="display_order" value="{{ old('display_order', $category->display_order) }}" min="0" step="1">
+                    </div>
+
                     <div class="col-md-12 mb-3">
                         <label for="edit-description" class="form-label">Description</label>
                         <textarea class="form-control" id="edit-description" name="description" rows="3" placeholder="Optional: describe what is included in this category">{{ old('description', $category->description) }}</textarea>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label d-block" for="edit-is-active">Status</label>
+                        <input type="hidden" name="is_active" value="0">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="edit-is-active" name="is_active" value="1" {{ old('is_active', $category->is_active) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="edit-is-active">Active</label>
+                        </div>
                     </div>
                 </div>
 
