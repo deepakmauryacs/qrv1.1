@@ -285,7 +285,7 @@
         $('<h6>').addClass('mb-1 text-dark').text(item.name).appendTo(body);
         $('<small>').addClass('text-muted d-block mb-2').text(item.description ? item.description.substring(0, 60) : '').appendTo(body);
         const priceRow = $('<div>').addClass('d-flex align-items-center justify-content-between mb-2');
-        const priceBadge = $('<span>').addClass('badge badge-light border mb-0 price-display');
+        const priceBadge = $('<span>').addClass('badge badge-light border mb-0 price-display d-inline-flex flex-column align-items-start text-left');
         const priceOptions = [];
 
         if (item.price_full !== null && item.price_full !== undefined) {
@@ -341,7 +341,16 @@
             }
 
             if (priceValue > 0) {
-                priceBadge.text(`₹ ${formatMoney(priceValue)} (${priceTypeLabel(priceType)})`);
+                const priceLines = [
+                    `<span class="d-block font-weight-bold text-dark">₹ ${formatMoney(priceValue)}</span>`
+                ];
+
+                const label = priceTypeLabel(priceType);
+                if (label) {
+                    priceLines.push(`<span class="d-block text-muted text-uppercase small">${label}</span>`);
+                }
+
+                priceBadge.html(priceLines.join(''));
             } else {
                 priceBadge.text('Price unavailable');
             }
