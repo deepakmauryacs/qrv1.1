@@ -1,0 +1,486 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+ 
+body {
+    background: #141414;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    font-family: inter;
+}
+body {
+    background-image: url(../images/bg.jpg);
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+body:before {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: #000000cf;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+} 
+
+
+.loginContainer {
+    display: grid;
+    background: #242424;
+    width: 900px;
+    align-items: center;
+    justify-content: center;
+    grid-template-columns: repeat(2, 1fr);
+    border: 1px solid #5d5d5d;
+    border-radius: 10px;
+}
+
+.login-left img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.login-right figure img {
+    width: 220px;
+}
+
+.login-right {
+    height: 100%;
+    padding: 30px;
+}
+
+.login-right h2 {
+    color: #fff;
+    font-size: 24px;
+}
+
+.login-section label {
+    color: #fff;
+}
+
+.login-section .form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.login-section .form-group input {
+    height: 46px;
+    padding: 10px;
+    border: 1px solid #fff;
+    border-radius: 2px;
+}
+
+.login-section label {
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.login-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.login-right h2 {
+    margin-bottom: 30px;
+}
+
+figure.logo img {
+    width: 220px;
+}
+
+.form-group.checkboxLogin {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+}
+
+.form-group.checkboxLogin input {
+    width: 20px;
+}
+
+.form-group.checkboxLogin span {
+    color: #fff;
+}
+
+.login-section button {
+    background: #fff;
+    height: 58px;
+    font-size: 20px;
+    border-radius: 100px;
+    font-weight: 500;
+    border: 1px solid #fff;
+	 transition: .5s all ease;
+}
+.login-section button:hover {
+    background: #055fc7;
+    transition: .5s all ease;
+    color: #fff;
+	 border: 1px solid #055fc7;
+}
+a.backToPage:hover {
+    color: #055fc7;
+}
+a.backToPage {
+    color: #fff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.loginContainer figure {
+    margin: 0;
+	    height: 100%;
+}
+
+.login-section .form-group input:focus {
+    outline: none;
+    border: none;
+    /* padding: 5px; */
+}
+.login-left {
+    height: 100%;
+}
+
+
+.onboardContainer {
+    color: #fff;
+}
+
+.onboard-left ul li svg path {
+    fill: #fff;
+}
+
+.onboard-left ul li svg {
+    width: 20px;
+    height: 20px;
+}
+.onboardContainer {
+    display: grid;
+    grid-template-columns: 70% 30%;
+    height: 100%;
+    align-items: center;
+    width: 100%;
+}
+
+figure.logo {
+    position: absolute;
+    top: 30px;
+    left: 100px;
+}
+
+.onboard-right {
+    background: #034087;
+    height: 100%;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 40px;
+}
+
+.onboard-left {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 100px 100px 30px 100px;
+    width: 80%;
+}
+
+.login-section {
+    width: 100%;
+}
+
+.onboard-right h6 {
+    text-align: left;
+    width: 100%;
+    font-size: 25px;
+    width: 80%;
+    margin-right: auto;
+    margin-bottom: 40px;
+}
+
+.login-section button {
+    margin-top: 50px;
+}
+
+.onboard-left h1 {
+    font-size: 50px;
+    width: 80%;
+    margin-bottom: 20px;
+}
+
+.onboard-left p {
+    font-size: 21px;
+    margin-bottom: 30px;
+}
+
+.onboard-left ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    font-size: 21px;
+    margin-bottom: 42px;
+}
+
+.tagline {
+    background: #fff;
+    font-size: 25px;
+    color: #034087;
+    padding: 15px 20px 15px 20px;
+    border-radius: 5px;
+    width: 70%;
+    text-align: left;
+    display: block;
+    line-height: 29px;
+    font-weight: 500;
+    margin-bottom: 30px;
+    text-transform: uppercase;
+    font-weight: 800;
+}
+
+.affordable h4 {
+    font-size: 50px;
+    font-weight: 600;
+}
+
+.affordable h3 {
+    font-size: 20px;
+}
+.login-section button:hover {
+    border: 1px solid #fff;
+    background: none;
+    color: #fff;
+}
+body {
+    position: relative;
+}
+
+
+
+
+
+
+@media (min-width: 1200px) and (max-width: 1300px) {
+	
+	.onboard-left {
+    padding: 100px 100px 30px 40px;
+    width: 100%;
+}
+
+figure.logo {
+    left: 40px;
+}
+
+.tagline {
+    width: 100%;
+}
+
+.onboardContainer {
+    grid-template-columns: 65% 35%;
+}
+
+.onboard-right {
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.onboard-left h1 {
+    width: 100%;
+    font-size: 40px;
+}
+	
+	
+}
+
+
+
+
+@media (min-width: 1300px) and (max-width: 1400px) {
+	
+	.onboard-left {
+    padding: 100px 100px 30px 40px;
+    width: 100%;
+}
+
+figure.logo {
+    left: 40px;
+}
+
+.tagline {
+    width: 100%;
+}
+
+.onboardContainer {
+    grid-template-columns: 65% 35%;
+}
+
+.onboard-right {
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.onboard-left h1 {
+    width: 100%;
+    font-size: 40px;
+}
+	body {
+           height: 100vh;
+
+    position: relative;
+}
+
+body:before {
+}
+	
+}
+
+
+
+@media (min-width: 1400px) and (max-width: 1500px) {
+	
+	.onboard-left {
+    padding: 100px 100px 30px 40px;
+    width: 100%;
+}
+
+figure.logo {
+    left: 40px;
+}
+
+.tagline {
+    width: 100%;
+}
+
+.onboardContainer {
+    grid-template-columns: 65% 35%;
+}
+
+.onboard-right {
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.onboard-left h1 {
+    width: 100%;
+    font-size: 40px;
+}
+	body {
+           height: 100vh;
+
+    position: relative;
+}
+
+ 
+	
+}
+
+
+
+
+
+@media (min-width: 300px) and (max-width: 767px) {
+
+.onboard-left {
+    padding: 20px;
+    width: 100%;
+}
+
+.onboard-left h1 {
+    font-size: 25px;
+    width: 100%;
+}
+
+.onboardContainer {
+    grid-template-columns: 100%;
+    width: 90%;
+    margin-right: auto;
+	        margin: 0 auto;
+			        margin-top: 30px;
+}
+
+    figure.logo {
+        position: unset;
+        width: 100%;
+        padding: 20px;
+        margin: 0;
+        margin-top: 20px;
+        padding-bottom: 0;
+        padding-top: 0;
+    }
+
+figure.logo img {
+    width: 180px;
+}
+
+.onboard-left p {
+    font-size: 16px;
+    margin-bottom: 30px;
+}
+
+.onboard-left ul li {
+    font-size: 16px;
+}
+
+.tagline {
+    width: 100%;
+    font-size: 18px;
+    line-height: 20px;
+}
+
+.onboard-right {
+    padding: 20px;
+}
+
+.onboard-right h6 {
+    width: 100%;
+    margin-bottom: 20px;
+    font-size: 22px;
+}
+
+.login-section button {
+    margin-top: 10px;
+}
+.affordable h4 {
+    font-size: 30px; 
+}
+.affordable h3 {
+    font-size: 16px;
+}
+
+body {
+    height: auto;
+}
+ 
+.onboard-left {
+    order: 1;
+    padding: 0;
+}
+
+.onboard-right {
+    order: 0;
+}
+
+.onboardContainer {
+    gap: 50px;
+}
+
+body {
+    position: relative;
+}
+
+}

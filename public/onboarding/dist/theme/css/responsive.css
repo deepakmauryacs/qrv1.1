@@ -1,0 +1,94 @@
+@media (min-width: 1600px) {
+  .container {
+    max-width: 1500px;
+    margin-left: auto;
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 1440px) {
+}
+@media (max-width: 1200px) {
+  .comingSoonMain {
+    padding: 30px;
+  }
+  .mainHeading {
+    font-size: 40px;
+  }
+  .soonDesc {
+    font-size: 16px;
+  }
+  .checkList li {
+    font-size: 16px;
+  }
+  .mainHeading2 {
+    font-size: 30px;
+  }
+  form {
+    padding: 30px 40px;
+  }
+}
+
+@media (max-width: 992px) {
+  form {
+    padding: 30px 20px;
+  }
+  .checkList {
+    margin-top: 20px;
+  }
+  .checkList li {
+    font-size: 16px;
+    width: 100%;
+  }
+  .highlight {
+    font-size: 15px;
+    padding: 10px 16px;
+  }
+  .mainHeading {
+    font-size: 25px;
+  }
+  .mainHeading2 {
+    font-size: 20px;
+  }
+}
+@media (max-width: 768px) {
+  .checkList li {
+    width: 50%;
+  }
+  .mainHeading2 {
+    font-size: 30px;
+  }
+  form {
+    margin-top: 30px;
+  }
+}
+@media (max-width: 576px) {
+}
+
+@media (max-width: 480px) {
+  header {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .icons {
+    justify-content: center;
+  }
+  .checkList li {
+    width: 100%;
+  }
+  form {
+    border-radius: 0;
+  }
+  .comingSoonMain {
+    padding: 30px 0;
+  }
+  footer {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .highlight 
+  {
+    font-size: 12px;
+    
+  }
+}

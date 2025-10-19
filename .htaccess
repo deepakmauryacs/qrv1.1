@@ -1,0 +1,10 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Force www
+    RewriteCond %{HTTP_HOST} ^digitalqr\.in [NC]
+    RewriteRule ^(.*)$ https://www.digitalqr.in/$1 [L,R=301]
+
+    # Redirect to public folder
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>

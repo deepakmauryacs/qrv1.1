@@ -1,0 +1,192 @@
+	*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+ 
+body {
+    background: #141414;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    font-family: inter;
+}
+body {
+    background-image: url(../images/bg.jpg);
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+body:before {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: #000000cf;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+} 
+
+
+.loginContainer {
+    display: grid;
+    background: #242424;
+    width: 900px;
+    align-items: center;
+    justify-content: center;
+    grid-template-columns: repeat(2, 1fr);
+    border: 1px solid #5d5d5d;
+    border-radius: 10px;
+}
+
+.login-left img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.login-right figure img {
+    width: 220px;
+}
+
+.login-right {
+    height: 100%;
+    padding: 30px;
+}
+
+.login-right h2 {
+    color: #fff;
+    font-size: 24px;
+}
+
+.login-section label {
+    color: #fff;
+}
+
+.login-section .form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.login-section .form-group input {
+    height: 46px;
+    padding: 10px;
+    border: 1px solid #fff;
+    border-radius: 2px;
+}
+
+.login-section label {
+    font-size: 14px;
+}
+
+.login-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.login-right h2 {
+    margin-bottom: 30px;
+}
+
+figure.logo img {
+    width: 220px;
+}
+
+.form-group.checkboxLogin {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+}
+
+.form-group.checkboxLogin input {
+    width: 20px;
+}
+
+.form-group.checkboxLogin span {
+    color: #fff;
+}
+
+.login-section button {
+    background: #fff;
+    height: 45px;
+    font-size: 20px;
+    border-radius: 100px;
+    font-weight: 500;
+    border: 1px solid #fff;
+	 transition: .5s all ease;
+}
+.login-section button:hover {
+    background: #055fc7;
+    transition: .5s all ease;
+    color: #fff;
+	 border: 1px solid #055fc7;
+}
+a.backToPage:hover {
+    color: #055fc7;
+}
+a.backToPage {
+    color: #fff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.loginContainer figure {
+    margin: 0;
+	    height: 100%;
+}
+
+.login-section .form-group input:focus {
+    outline: none;
+    border: none;
+    /* padding: 5px; */
+}
+.login-left {
+    height: 100%;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media (min-width: 300px) and (max-width: 767px) {
+.loginContainer {
+    grid-template-columns: repeat(1, 1fr);
+    width: 90%;
+}
+
+.login-left {
+    display: none;
+}
+
+body {
+    background-position: center center;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+}
