@@ -155,6 +155,12 @@
                     <span>Dining Orders</span></a>
             </li>
 
+            <li class="nav-item {{ request()->routeIs('vendor.pos.*') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('vendor.pos.index') }}">
+                    <i class="bi bi-cash-register"></i>
+                    <span>POS</span></a>
+            </li>
+
 
             <!-- Nav Item - QR Code -->
             <li class="nav-item {{ request()->routeIs('vendor.settings.qrcodecustomize') ? 'active' : '' }}">

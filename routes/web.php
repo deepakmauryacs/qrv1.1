@@ -26,7 +26,8 @@ use App\Http\Controllers\Vendor\{
     TicketController,
     MenuRequestController,
     InvoiceController,
-    VendorCategoryController
+    VendorCategoryController,
+    VendorPosController
 };
 use App\Http\Controllers\ContactController;
 
@@ -162,7 +163,16 @@ Route::prefix('vendor')->group(function () {
 
         Route::get('dining-orders', [VendorDiningOrderController::class, 'index'])->name('vendor.dining-orders.index');
         Route::post('/vendor/dining-orders/updateStatus', [VendorDiningOrderController::class, 'updateStatus'])->name('vendor.dining-orders.updateStatus');
-        
+
+        Route::prefix('pos')->name('vendor.pos.')->group(function () {
+            Route::get('/', [VendorPosController::class, 'index'])->name('index');
+            Route::get('/products', [VendorPosController::class, 'products'])->name('products');
+            Route::get('/orders', [VendorPosController::class, 'orders'])->name('orders');
+            Route::get('/orders/{order}', [VendorPosController::class, 'show'])->name('orders.show');
+            Route::get('/orders/{order}/print', [VendorPosController::class, 'print'])->name('orders.print');
+            Route::post('/orders', [VendorPosController::class, 'store'])->name('orders.store');
+        });
+
         Route::get('/notifications', [NotificationController::class, 'index'])->name('vendor.notifications.index');
         Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead'])->name('vendor.notifications.markAsRead');
         
