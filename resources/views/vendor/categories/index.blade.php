@@ -8,7 +8,7 @@
             <p class="text-muted mb-0">Create and manage the categories that power your digital QR menu.</p>
         </div>
         <div class="text-right">
-            <a href="{{ route('vendor.categories.index', ['create' => 1]) }}" class="btn btn-outline-primary mb-2">
+            <a href="{{ route('vendor.categories.create') }}" class="btn btn-outline-primary mb-2">
                 <i class="bi bi-plus-circle"></i> Create New QR Category
             </a>
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createCategoryModal">
@@ -240,9 +240,6 @@
             });
         });
 
-        @if($openCreateModal)
-            $('#createCategoryModal').modal('show');
-        @endif
     });
 </script>
 @endpush

@@ -133,6 +133,7 @@ Route::prefix('vendor')->group(function () {
         Route::get('menus/clone-menu', [VendorMenuController::class, 'clone'])->name('vendor.menus.clone');
 
         Route::get('categories', [VendorCategoryController::class, 'index'])->name('vendor.categories.index');
+        Route::get('categories/create', [VendorCategoryController::class, 'create'])->name('vendor.categories.create');
         Route::get('categories/data', [VendorCategoryController::class, 'data'])->name('vendor.categories.data');
         Route::post('categories', [VendorCategoryController::class, 'store'])->name('vendor.categories.store');
         Route::put('categories/{category}', [VendorCategoryController::class, 'update'])->name('vendor.categories.update');
