@@ -27,7 +27,8 @@ use App\Http\Controllers\Vendor\{
     MenuRequestController,
     InvoiceController,
     VendorCategoryController,
-    VendorPosController
+    VendorPosController,
+    VendorPosSettingController
 };
 use App\Http\Controllers\ContactController;
 
@@ -165,6 +166,8 @@ Route::prefix('vendor')->group(function () {
         Route::post('/vendor/dining-orders/updateStatus', [VendorDiningOrderController::class, 'updateStatus'])->name('vendor.dining-orders.updateStatus');
 
         Route::prefix('pos')->name('vendor.pos.')->group(function () {
+            Route::get('/settings', [VendorPosSettingController::class, 'index'])->name('settings.index');
+            Route::post('/settings', [VendorPosSettingController::class, 'store'])->name('settings.store');
             Route::get('/', [VendorPosController::class, 'index'])->name('index');
             Route::get('/categories', [VendorPosController::class, 'categories'])->name('categories');
             Route::get('/products', [VendorPosController::class, 'products'])->name('products');

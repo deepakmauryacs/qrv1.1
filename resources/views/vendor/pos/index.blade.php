@@ -3,6 +3,11 @@
 @section('pageTitle', 'Restaurant POS')
 
 @section('content')
+@php
+    $currencySymbol = $posSetting->currency ?? '₹';
+    $defaultCustomerName = $posSetting->default_customer_name ?? 'Walk-in Customer';
+    $defaultContactNumber = $posSetting->default_contact_number ?? '';
+@endphp
 <style>
     .pos-product-card-body {
         display: flex;
@@ -71,6 +76,9 @@
     <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Restaurant POS</h1>
         <div class="d-flex align-items-center">
+            <a href="{{ route('vendor.pos.settings.index') }}" class="btn btn-outline-secondary btn-sm mr-2 mb-2">
+                <i class="bi bi-gear"></i> POS Settings
+            </a>
             <a href="{{ route('vendor.pos.orders') }}" class="btn btn-outline-secondary btn-sm mr-2 mb-2">
                 <i class="bi bi-card-list"></i> View Orders
             </a>
@@ -118,11 +126,11 @@
                     <form id="customerForm" class="mb-4">
                         <div class="form-group">
                             <label for="customerName">Customer Name <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="customerName" placeholder="Walk-in Customer" required>
+                            <input type="text" class="form-control" id="customerName" placeholder="{{ $defaultCustomerName }}" required>
                         </div>
                         <div class="form-group mb-0">
                             <label for="customerContact">Contact Number <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="customerContact" placeholder="Contact number" required>
+                            <input type="text" class="form-control" id="customerContact" placeholder="{{ $defaultContactNumber ?: 'Contact number' }}" required>
                         </div>
                     </form>
 
@@ -148,7 +156,7 @@
                     <div class="border-top pt-3">
                         <div class="d-flex justify-content-between">
                             <span>Subtotal</span>
-                            <strong id="subtotalAmount">0.00</strong>
+                            <strong id="subtotalAmount">{{ $currencySymbol }} 0.00</strong>
                         </div>
                         <div class="d-flex justify-content-between align-items-center mt-2">
                             <label for="discountAmount" class="mb-0">Discount</label>
@@ -156,7 +164,7 @@
                         </div>
                         <div class="d-flex justify-content-between mt-3">
                             <span>Total</span>
-                            <strong id="totalAmount">0.00</strong>
+                            <strong id="totalAmount">{{ $currencySymbol }} 0.00</strong>
                         </div>
                     </div>
 
@@ -189,11 +197,15 @@
     const csrfToken = "{{ csrf_token() }}";
 
     const initialCategories = @json($categories);
+    const currencySymbol = @json($currencySymbol);
+    const defaultCustomerName = @json($defaultCustomerName);
+    const defaultCustomerContact = @json($defaultContactNumber);
 
     let activeCategory = '';
     let cart = [];
 
     const formatMoney = (value) => parseFloat(value || 0).toFixed(2);
+    const formatCurrency = (value) => `${currencySymbol} ${formatMoney(value)}`;
     const priceTypeLabel = (type) => type === 'half' ? 'Half' : (type === 'full' ? 'Full' : '');
 
     const populateCategoryFilter = (categories) => {
@@ -249,7 +261,7 @@
         const priceBlock = $('<div>').addClass('pos-price-block');
 
         const priceBadge = $('<div>').addClass('pos-price-badge');
-        priceBadge.append(`<span class="val">₹ ${formatMoney(item.price_full || item.price_half || 0)}</span>`);
+        priceBadge.append(`<span class="val">${formatCurrency(item.price_full || item.price_half || 0)}</span>`);
         priceBadge.append(`<span class="unit">${item.price_full != null ? 'FULL' : (item.price_half != null ? 'HALF' : 'PRICE')}</span>`);
 
         priceBlock.append(priceBadge);
@@ -268,7 +280,7 @@
                     $('<option>')
                         .val(option.type)
                         .data('price', option.value)
-                        .text(`${priceTypeLabel(option.type)} - ₹ ${formatMoney(option.value)}`)
+                        .text(`${priceTypeLabel(option.type)} - ${formatCurrency(option.value)}`)
                 );
             });
             if (defaultOption) priceSelect.val(defaultOption.type);
@@ -303,7 +315,7 @@
             const priceValue = selectedOption ? parseFloat(selectedOption.data('price')) : (defaultOption ? defaultOption.value : 0);
 
             if (priceValue > 0) {
-                priceBadge.find('.val').text(`₹ ${formatMoney(priceValue)}`);
+                priceBadge.find('.val').text(formatCurrency(priceValue));
                 priceBadge.find('.unit').text(priceTypeLabel(priceType).toUpperCase());
                 addBtn.data('price', priceValue);
                 addBtn.data('priceType', priceType);
@@ -336,8 +348,8 @@
         const discountInput = parseFloat($('#discountAmount').val()) || 0;
         const discount = Math.min(discountInput, subtotal);
         const total = subtotal - discount;
-        $('#subtotalAmount').text(formatMoney(subtotal));
-        $('#totalAmount').text(formatMoney(total));
+        $('#subtotalAmount').text(formatCurrency(subtotal));
+        $('#totalAmount').text(formatCurrency(total));
     };
 
     const renderCart = () => {
@@ -363,8 +375,8 @@
                 $('<div>').addClass('input-group-append').append(increase).appendTo(qtyGroup);
                 qtyCell.append(qtyGroup).appendTo(row);
 
-                $('<td>').addClass('text-right').text(`₹ ${formatMoney(item.price)}`).appendTo(row);
-                $('<td>').addClass('text-right').text(`₹ ${formatMoney(item.price * item.quantity)}`).appendTo(row);
+                $('<td>').addClass('text-right').text(formatCurrency(item.price)).appendTo(row);
+                $('<td>').addClass('text-right').text(formatCurrency(item.price * item.quantity)).appendTo(row);
 
                 const removeCell = $('<td>').addClass('text-right');
                 const removeButton = $('<button>').addClass('btn btn-link text-danger p-0 remove-item').data('key', item.key).append($('<i>').addClass('bi bi-trash'));
@@ -393,6 +405,8 @@
         $('#discountAmount').val(0);
         const form = $('#customerForm')[0];
         if (form) form.reset();
+        $('#customerName').val(defaultCustomerName);
+        $('#customerContact').val(defaultCustomerContact);
         renderCart();
     };
 
@@ -455,6 +469,11 @@
     $(document).ready(function () {
         populateCategoryFilter(initialCategories);
         loadProducts();
+
+        $('#customerName').attr('placeholder', defaultCustomerName).val(defaultCustomerName);
+        const contactPlaceholder = defaultCustomerContact || 'Contact number';
+        $('#customerContact').attr('placeholder', contactPlaceholder).val(defaultCustomerContact);
+        refreshTotals();
 
         $.get(categoriesUrl)
             .done(response => {

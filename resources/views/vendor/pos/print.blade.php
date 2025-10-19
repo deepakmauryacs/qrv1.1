@@ -4,6 +4,10 @@
     $format = ($format ?? '80mm') === 'a4' ? 'a4' : '80mm';
     $isA4 = $format === 'a4';
     $orderNumber = str_pad($order->id, 6, '0', STR_PAD_LEFT);
+    $currencySymbol = $posSetting->currency ?? '₹';
+    $timezoneName = $posSetting->timezone ?? config('app.timezone');
+    $displayedTime = ($receiptTime ?? $order->created_at)->copy()->timezone($timezoneName);
+    $invoiceLogoUrl = $posSetting->invoice_logo ? asset($posSetting->invoice_logo) : null;
 @endphp
 <head>
     <meta charset="utf-8">
@@ -186,9 +190,14 @@
 <body class="receipt-{{ $format }}">
     <div class="receipt-wrapper">
         <div class="header">
+            @if($invoiceLogoUrl)
+                <div class="mb-2">
+                    <img src="{{ $invoiceLogoUrl }}" alt="Invoice logo" style="max-height: {{ $isA4 ? '80px' : '60px' }}; max-width: 100%; object-fit: contain;">
+                </div>
+            @endif
             <h2>{{ $vendor->business_name ?? $vendor->name }}</h2>
             <div class="meta">Order #: {{ $orderNumber }}</div>
-            <div class="meta">{{ $order->created_at->format('d M Y H:i') }}</div>
+            <div class="meta">{{ $displayedTime->format('d M Y H:i') }} ({{ $timezoneName }})</div>
         </div>
 
         <div class="meta-grid">
@@ -211,7 +220,7 @@
                     <tr>
                         <td>{{ $item->item_name }}</td>
                         <td class="qty">{{ $item->quantity }}</td>
-                        <td class="price">₹ {{ number_format($item->line_total, 2) }}</td>
+                        <td class="price">{{ $currencySymbol }} {{ number_format($item->line_total, 2) }}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -221,15 +230,15 @@
             <tbody>
                 <tr>
                     <td><strong>Subtotal</strong></td>
-                    <td>₹ {{ number_format($order->subtotal, 2) }}</td>
+                    <td>{{ $currencySymbol }} {{ number_format($order->subtotal, 2) }}</td>
                 </tr>
                 <tr>
                     <td><strong>Discount</strong></td>
-                    <td>₹ {{ number_format($order->discount_amount, 2) }}</td>
+                    <td>{{ $currencySymbol }} {{ number_format($order->discount_amount, 2) }}</td>
                 </tr>
                 <tr>
                     <td><strong>Total</strong></td>
-                    <td><strong>₹ {{ number_format($order->total_amount, 2) }}</strong></td>
+                    <td><strong>{{ $currencySymbol }} {{ number_format($order->total_amount, 2) }}</strong></td>
                 </tr>
             </tbody>
         </table>

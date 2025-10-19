@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 class Vendor extends Authenticatable
 {
     use HasFactory,HasApiTokens, Notifiable;
-    
+
     protected $table = 'vendors'; // Ensure the correct table name is set
     protected $fillable = ['code', 'name', 'email', 'password','contact_number', 'owner_name', 'address', 'status'];
 
@@ -21,7 +21,12 @@ class Vendor extends Authenticatable
         return $this->hasMany(VendorsSubscription::class);  // If VendorsSubscription has 'vendor_id' field
     }
 
-   
-   
+    public function posSetting()
+    {
+        return $this->hasOne(PosSetting::class);
+    }
+
+
+
 
 }
