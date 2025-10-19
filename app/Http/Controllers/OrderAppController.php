@@ -18,17 +18,74 @@ use Illuminate\Validation\Rule;
 class OrderAppController extends Controller
 {
     /**
-     * Display the order application for a given vendor code.
+     * Resolve the vendor and settings for the provided code.
      */
-    public function index(string $code)
+    protected function loadVendorContext(string $code): array
     {
         $vendor = Vendor::where('code', $code)->firstOrFail();
         $settings = Setting::where('vendor_id', $vendor->id)->first();
 
-        return view('order.app', [
-            'vendor' => $vendor,
-            'settings' => $settings,
-        ]);
+        return [$vendor, $settings];
+    }
+
+    /**
+     * Display the landing page for the ordering experience.
+     */
+    public function index(string $code)
+    {
+        [$vendor, $settings] = $this->loadVendorContext($code);
+
+        return view('order.index', compact('vendor', 'settings'));
+    }
+
+    /**
+     * Show the item listing page.
+     */
+    public function items(string $code)
+    {
+        [$vendor, $settings] = $this->loadVendorContext($code);
+
+        return view('order.item-list', compact('vendor', 'settings'));
+    }
+
+    /**
+     * Show the checkout page.
+     */
+    public function checkout(string $code)
+    {
+        [$vendor, $settings] = $this->loadVendorContext($code);
+
+        return view('order.checkout', compact('vendor', 'settings'));
+    }
+
+    /**
+     * Show the profile and order history page.
+     */
+    public function profile(string $code)
+    {
+        [$vendor, $settings] = $this->loadVendorContext($code);
+
+        return view('order.profile', compact('vendor', 'settings'));
+    }
+
+    /**
+     * Show the login form.
+     */
+    public function login(string $code)
+    {
+        [$vendor, $settings] = $this->loadVendorContext($code);
+
+        return view('order.login', compact('vendor', 'settings'));
+    }
+
+    /**
+     * Show the sign up form.
+     */
+    public function signup(string $code)
+    {
+        [$vendor, $settings] = $this->loadVendorContext($code);
+
+        return view('order.signup', compact('vendor', 'settings'));
     }
 
     /**
@@ -36,8 +93,7 @@ class OrderAppController extends Controller
      */
     public function menu(string $code)
     {
-        $vendor = Vendor::where('code', $code)->firstOrFail();
-        $settings = Setting::where('vendor_id', $vendor->id)->first();
+        [$vendor, $settings] = $this->loadVendorContext($code);
 
         $categories = MenuCategory::query()
             ->whereHas('vendorMenus', function ($query) use ($vendor) {
