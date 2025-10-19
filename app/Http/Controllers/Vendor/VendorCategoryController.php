@@ -1,0 +1,153 @@
+<?php
+
+namespace App\Http\Controllers\Vendor;
+
+use App\Http\Controllers\Controller;
+use App\Models\VendorCategory;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+
+class VendorCategoryController extends Controller
+{
+    /**
+     * Display the vendor categories index page.
+     */
+    public function index(Request $request)
+    {
+        $openCreateModal = $request->boolean('create');
+
+        return view('vendor.categories.index', compact('openCreateModal'));
+    }
+
+    /**
+     * Provide data for the categories DataTable.
+     */
+    public function data(Request $request)
+    {
+        $vendorId = auth()->id();
+
+        $categories = VendorCategory::where('vendor_id', $vendorId)
+            ->orderBy('display_order')
+            ->orderBy('name');
+
+        return datatables()->of($categories)
+            ->addIndexColumn()
+            ->editColumn('is_active', fn (VendorCategory $category) => $category->is_active ? 'Active' : 'Inactive')
+            ->addColumn('action', function (VendorCategory $category) {
+                $escapedDescription = e($category->description ?? '');
+                $escapedName = e($category->name);
+
+                $editButton = '<button type="button" class="btn btn-sm btn-primary btn-edit"'
+                    . ' data-id="' . $category->id . '"'
+                    . ' data-name="' . $escapedName . '"'
+                    . ' data-description="' . $escapedDescription . '"><i class="bi bi-pencil-square"></i> Edit</button>';
+
+                $deleteUrl = route('vendor.categories.destroy', $category->id);
+                $deleteButton = '<button type="button" class="btn btn-sm btn-danger btn-delete"'
+                    . ' data-url="' . $deleteUrl . '"><i class="bi bi-trash"></i> Delete</button>';
+
+                return $editButton . ' ' . $deleteButton;
+            })
+            ->rawColumns(['action'])
+            ->make(true);
+    }
+
+    /**
+     * Store a newly created vendor category.
+     */
+    public function store(Request $request)
+    {
+        $vendorId = auth()->id();
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255|unique:vendor_categories,name,NULL,id,vendor_id,' . $vendorId,
+            'description' => 'nullable|string|max:1000',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 0,
+                'message' => $validator->errors()->all(),
+            ], 422);
+        }
+
+        $name = strip_tags(filter_var(trim($request->input('name')), FILTER_SANITIZE_STRING));
+        $description = $request->filled('description')
+            ? strip_tags(filter_var(trim($request->input('description')), FILTER_SANITIZE_STRING))
+            : null;
+
+        $category = VendorCategory::create([
+            'vendor_id' => $vendorId,
+            'name' => $name,
+            'description' => $description,
+        ]);
+
+        return response()->json([
+            'status' => 1,
+            'message' => 'Category created successfully.',
+            'data' => $category,
+        ]);
+    }
+
+    /**
+     * Update the specified vendor category.
+     */
+    public function update(Request $request, VendorCategory $category)
+    {
+        $this->guardCategory($category);
+
+        $vendorId = auth()->id();
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255|unique:vendor_categories,name,' . $category->id . ',id,vendor_id,' . $vendorId,
+            'description' => 'nullable|string|max:1000',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 0,
+                'message' => $validator->errors()->all(),
+            ], 422);
+        }
+
+        $name = strip_tags(filter_var(trim($request->input('name')), FILTER_SANITIZE_STRING));
+        $description = $request->filled('description')
+            ? strip_tags(filter_var(trim($request->input('description')), FILTER_SANITIZE_STRING))
+            : null;
+
+        $category->update([
+            'name' => $name,
+            'description' => $description,
+        ]);
+
+        return response()->json([
+            'status' => 1,
+            'message' => 'Category updated successfully.',
+        ]);
+    }
+
+    /**
+     * Remove the specified vendor category from storage.
+     */
+    public function destroy(VendorCategory $category)
+    {
+        $this->guardCategory($category);
+
+        $category->delete();
+
+        return response()->json([
+            'status' => 1,
+            'message' => 'Category deleted successfully.',
+        ]);
+    }
+
+    /**
+     * Ensure the category belongs to the authenticated vendor.
+     */
+    private function guardCategory(VendorCategory $category): void
+    {
+        if ($category->vendor_id !== auth()->id()) {
+            abort(403, 'You are not allowed to perform this action.');
+        }
+    }
+}

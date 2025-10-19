@@ -134,6 +134,21 @@
                 </div>
             </li>
 
+            <!-- Nav Item - Categories -->
+            <li class="nav-item {{ request()->routeIs('vendor.categories.*') ? 'active' : '' }}">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseCategories"
+                    aria-expanded="true" aria-controls="collapseCategories">
+                    <i class="bi bi-tags"></i>
+                    <span>Categories</span>
+                </a>
+                <div id="collapseCategories" class="collapse {{ request()->routeIs('vendor.categories.*') ? 'show' : '' }}" aria-labelledby="headingCategories" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item {{ request()->routeIs('vendor.categories.index') && !request()->has('create') ? 'active' : '' }}" href="{{ route('vendor.categories.index') }}">QR Menu Categories</a>
+                        <a class="collapse-item {{ request()->routeIs('vendor.categories.index') && request()->has('create') ? 'active' : '' }}" href="{{ route('vendor.categories.index', ['create' => 1]) }}">Create New QR Categories</a>
+                    </div>
+                </div>
+            </li>
+
             <li class="nav-item">
                 <a class="nav-link" href="{{ route('vendor.dining-orders.index') }}">
                     <i class="bi bi-basket3"></i>
@@ -511,5 +526,6 @@
         setInterval(updateClock, 1000); // Update every second
         updateClock(); // Initial call
     </script>
+    @stack('scripts')
 </body>
 </html>
