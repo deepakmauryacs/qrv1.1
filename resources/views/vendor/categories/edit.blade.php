@@ -178,10 +178,15 @@ $(function () {
 
         submitButton.prop('disabled', true).html('<i class="bi bi-hourglass-split spin"></i> Saving...');
 
+        // Respect the intended HTTP verb (PUT for updates) when sending the request.
+        const httpMethod = form.find('input[name="_method"]').val() || form.attr('method') || 'POST';
+        const serializedData = form.serialize();
+
         $.ajax({
             url: form.attr('action'),
-            method: 'POST', // _method=PUT is present via @method('PUT')
-            data: form.serialize(),
+            method: httpMethod,
+            type: httpMethod,
+            data: serializedData,
             success: function (response) {
                 if (response.status === 1) {
                     toastr.success(response.message || 'Category updated successfully.');
