@@ -25,7 +25,8 @@ use App\Http\Controllers\Vendor\{
     NotificationController,
     TicketController,
     MenuRequestController,
-    InvoiceController
+    InvoiceController,
+    VendorCategoryController
 };
 use App\Http\Controllers\ContactController;
 
@@ -130,8 +131,14 @@ Route::prefix('vendor')->group(function () {
         Route::delete('menus/{menu}', [VendorMenuController::class, 'destroy'])->name('vendor.menus.destroy');
         Route::post('menus/update-status', [VendorMenuController::class, 'updateStatus'])->name('vendor.menus.updateStatus');
         Route::get('menus/clone-menu', [VendorMenuController::class, 'clone'])->name('vendor.menus.clone');
-        
-        
+
+        Route::get('categories', [VendorCategoryController::class, 'index'])->name('vendor.categories.index');
+        Route::get('categories/data', [VendorCategoryController::class, 'data'])->name('vendor.categories.data');
+        Route::post('categories', [VendorCategoryController::class, 'store'])->name('vendor.categories.store');
+        Route::put('categories/{category}', [VendorCategoryController::class, 'update'])->name('vendor.categories.update');
+        Route::delete('categories/{category}', [VendorCategoryController::class, 'destroy'])->name('vendor.categories.destroy');
+
+
         Route::get('menus/getByCategory', [VendorMenuController::class, 'getMenusByCategory'])->name('vendor.menus.getByCategory');
         Route::post('menus/add', [VendorMenuController::class, 'addMenuToVendor'])->name('vendor.menus.add');
         Route::get('menus/menus-setup', [VendorMenuSetupController::class, 'index'])->name('vendor.menu.setup');
