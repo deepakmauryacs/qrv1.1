@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Vendor;
 use App\Http\Controllers\Controller;
 use App\Models\PosOrder;
 use App\Models\PosOrderItem;
+use App\Models\PosSetting;
 use App\Models\VendorCategory;
 use App\Models\VendorMenu;
 use Illuminate\Http\Request;
@@ -26,8 +27,11 @@ class VendorPosController extends Controller
             ->orderBy('name')
             ->get(['id', 'name']);
 
+        $posSetting = $this->getPosSetting($vendorId);
+
         return view('vendor.pos.index', [
             'categories' => $categories,
+            'posSetting' => $posSetting,
         ]);
     }
 
@@ -252,12 +256,20 @@ class VendorPosController extends Controller
 
     public function orders()
     {
-        return view('vendor.pos.orders');
+        $vendorId = auth()->id();
+        $posSetting = $this->getPosSetting($vendorId);
+
+        return view('vendor.pos.orders', [
+            'posSetting' => $posSetting,
+        ]);
     }
 
     public function ordersList(Request $request)
     {
         $vendorId = auth()->id();
+
+        $posSetting = $this->getPosSetting($vendorId);
+        $timezone = $posSetting->timezone ?: config('app.timezone');
 
         $query = PosOrder::query()
             ->where('vendor_id', $vendorId);
@@ -284,7 +296,8 @@ class VendorPosController extends Controller
             ->orderByDesc('created_at')
             ->limit(50)
             ->get()
-            ->map(function (PosOrder $order) {
+            ->map(function (PosOrder $order) use ($timezone) {
+                $createdAt = $order->created_at->copy()->timezone($timezone)->format('d M Y H:i');
                 return [
                     'id' => $order->id,
                     'reference' => str_pad((string) $order->id, 6, '0', STR_PAD_LEFT),
@@ -292,7 +305,7 @@ class VendorPosController extends Controller
                     'customer_contact' => $order->customer_contact,
                     'total_amount' => (float) $order->total_amount,
                     'status' => $order->status,
-                    'created_at' => $order->created_at->toDateTimeString(),
+                    'created_at' => sprintf('%s (%s)', $createdAt, $timezone),
                 ];
             })->values();
 
@@ -309,6 +322,11 @@ class VendorPosController extends Controller
 
         $order->load('items');
 
+        $posSetting = $this->getPosSetting($order->vendor_id);
+        $timezone = $posSetting->timezone ?: config('app.timezone');
+
+        $createdAt = $order->created_at->copy()->timezone($timezone)->format('d M Y H:i');
+
         return response()->json([
             'id' => $order->id,
             'reference' => str_pad((string) $order->id, 6, '0', STR_PAD_LEFT),
@@ -319,7 +337,7 @@ class VendorPosController extends Controller
             'discount_amount' => (float) $order->discount_amount,
             'total_amount' => (float) $order->total_amount,
             'status' => $order->status,
-            'created_at' => $order->created_at->toDateTimeString(),
+            'created_at' => sprintf('%s (%s)', $createdAt, $timezone),
             'items' => $order->items->map(function (PosOrderItem $item) {
                 return [
                     'id' => $item->id,
@@ -342,6 +360,10 @@ class VendorPosController extends Controller
 
         $vendor = auth()->user();
 
+        $posSetting = $this->getPosSetting($order->vendor_id);
+        $timezone = $posSetting->timezone ?: config('app.timezone');
+        $receiptTime = $order->created_at->copy()->timezone($timezone);
+
         $format = strtolower($request->input('format', '80mm'));
         if (!in_array($format, ['80mm', 'a4'], true)) {
             $format = '80mm';
@@ -351,7 +373,22 @@ class VendorPosController extends Controller
             'order' => $order,
             'vendor' => $vendor,
             'format' => $format,
+            'posSetting' => $posSetting,
+            'receiptTime' => $receiptTime,
         ]);
+    }
+
+    protected function getPosSetting(int $vendorId): PosSetting
+    {
+        return PosSetting::firstOrNew(
+            ['vendor_id' => $vendorId],
+            [
+                'currency' => '₹',
+                'timezone' => 'Asia/Kolkata',
+                'default_customer_name' => 'Walk-in Customer',
+                'default_contact_number' => '',
+            ]
+        );
     }
 
     public function update(Request $request, PosOrder $order)

@@ -165,6 +165,7 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <a class="collapse-item {{ request()->routeIs('vendor.pos.index') ? 'active' : '' }}" href="{{ route('vendor.pos.index') }}">POS</a>
                         <a class="collapse-item {{ request()->routeIs('vendor.pos.orders') ? 'active' : '' }}" href="{{ route('vendor.pos.orders') }}">POS Orders</a>
+                        <a class="collapse-item {{ request()->routeIs('vendor.pos.settings.index') ? 'active' : '' }}" href="{{ route('vendor.pos.settings.index') }}">POS Settings</a>
                     </div>
                 </div>
             </li>

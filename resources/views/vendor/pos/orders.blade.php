@@ -3,6 +3,9 @@
 @section('pageTitle', 'POS Orders')
 
 @section('content')
+@php
+    $currencySymbol = $posSetting->currency ?? '₹';
+@endphp
 <div class="container-fluid">
     <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">POS Orders</h1>
@@ -46,7 +49,7 @@
                             <th>Contact</th>
                             <th class="text-right">Total</th>
                             <th>Status</th>
-                            <th class="text-right">Created</th>
+                            <th class="text-right">Created ({{ $posSetting->timezone ?? 'Asia/Kolkata' }})</th>
                             <th class="text-right">Actions</th>
                         </tr>
                     </thead>
@@ -131,8 +134,10 @@
     const orderPrintTemplate = "{{ route('vendor.pos.orders.print', ['order' => '__ORDER__']) }}";
     const orderUpdateTemplate = "{{ route('vendor.pos.orders.update', ['order' => '__ORDER__']) }}";
     const csrfToken = "{{ csrf_token() }}";
+    const currencySymbol = @json($currencySymbol);
 
     const formatMoney = (value) => parseFloat(value || 0).toFixed(2);
+    const formatCurrency = (value) => `${currencySymbol} ${formatMoney(value)}`;
     const statusLabel = (status) => {
         if (status === 'draft') return 'Draft';
         if (status === 'completed') return 'Completed';
@@ -196,7 +201,7 @@
                     $('<td>').html(`<strong>#${order.reference}</strong>`).appendTo(row);
                     $('<td>').text(order.customer_name).appendTo(row);
                     $('<td>').text(order.customer_contact || '-').appendTo(row);
-                    $('<td>').addClass('text-right').text(`₹ ${formatMoney(order.total_amount)}`).appendTo(row);
+                    $('<td>').addClass('text-right').text(formatCurrency(order.total_amount)).appendTo(row);
                     const statusBadge = $('<span>').addClass(statusClass(order.status)).text(statusLabel(order.status));
                     $('<td>').append(statusBadge).appendTo(row);
                     $('<td>').addClass('text-right').text(order.created_at).appendTo(row);
@@ -299,14 +304,14 @@
                         const row = $('<tr>');
                         $('<td>').text(item.item_name).appendTo(row);
                         $('<td>').addClass('text-center').text(item.quantity).appendTo(row);
-                        $('<td>').addClass('text-right').text(`₹ ${formatMoney(item.unit_price)}`).appendTo(row);
-                        $('<td>').addClass('text-right').text(`₹ ${formatMoney(item.line_total)}`).appendTo(row);
+                        $('<td>').addClass('text-right').text(formatCurrency(item.unit_price)).appendTo(row);
+                        $('<td>').addClass('text-right').text(formatCurrency(item.line_total)).appendTo(row);
                         itemsBody.append(row);
                     });
 
-                    $('#detailSubtotal').text(`₹ ${formatMoney(response.subtotal)}`);
-                    $('#detailDiscount').text(`₹ ${formatMoney(response.discount_amount)}`);
-                    $('#detailTotal').text(`₹ ${formatMoney(response.total_amount)}`);
+                    $('#detailSubtotal').text(formatCurrency(response.subtotal));
+                    $('#detailDiscount').text(formatCurrency(response.discount_amount));
+                    $('#detailTotal').text(formatCurrency(response.total_amount));
                     $('#orderDetailsModal').modal('show');
                 })
                 .fail(() => toastr.error('Unable to fetch order details.'));
