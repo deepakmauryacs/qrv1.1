@@ -8,6 +8,7 @@ use App\Models\PosOrderItem;
 use App\Models\VendorCategory;
 use App\Models\VendorMenu;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -238,12 +239,32 @@ class VendorPosController extends Controller
         return view('vendor.pos.orders');
     }
 
-    public function ordersList()
+    public function ordersList(Request $request)
     {
         $vendorId = auth()->id();
 
-        $orders = PosOrder::query()
-            ->where('vendor_id', $vendorId)
+        $query = PosOrder::query()
+            ->where('vendor_id', $vendorId);
+
+        if ($request->filled('start_date')) {
+            try {
+                $startDate = Carbon::parse($request->input('start_date'))->startOfDay();
+                $query->where('created_at', '>=', $startDate);
+            } catch (\Exception $exception) {
+                // Ignore invalid dates and continue without applying the filter
+            }
+        }
+
+        if ($request->filled('end_date')) {
+            try {
+                $endDate = Carbon::parse($request->input('end_date'))->endOfDay();
+                $query->where('created_at', '<=', $endDate);
+            } catch (\Exception $exception) {
+                // Ignore invalid dates and continue without applying the filter
+            }
+        }
+
+        $orders = $query
             ->orderByDesc('created_at')
             ->limit(50)
             ->get()
@@ -252,7 +273,6 @@ class VendorPosController extends Controller
                     'id' => $order->id,
                     'reference' => str_pad((string) $order->id, 6, '0', STR_PAD_LEFT),
                     'customer_name' => $order->customer_name,
-                    'customer_email' => $order->customer_email,
                     'customer_contact' => $order->customer_contact,
                     'total_amount' => (float) $order->total_amount,
                     'status' => $order->status,
