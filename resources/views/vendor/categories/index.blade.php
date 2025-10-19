@@ -74,40 +74,6 @@
     </div>
 </div>
 
-<!-- Edit Modal -->
-<div class="modal fade" id="editCategoryModal" tabindex="-1" role="dialog" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editCategoryModalLabel">Edit QR Category</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form id="editCategoryForm" method="POST">
-                @csrf
-                @method('PUT')
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="edit-name">Category Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="edit-name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-description">Description</label>
-                        <textarea class="form-control" id="edit-description" name="description" rows="3"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-save"></i> Update Category
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 @push('scripts')
 <script>
     $(document).ready(function () {
@@ -163,51 +129,6 @@
                 },
                 complete: function () {
                     submitButton.prop('disabled', false).html('<i class="bi bi-save"></i> Save Category');
-                }
-            });
-        });
-
-        $('#categoriesTable').on('click', '.btn-edit', function () {
-            const button = $(this);
-            const id = button.data('id');
-            const name = button.data('name');
-            const description = button.data('description');
-
-            $('#edit-name').val(name);
-            $('#edit-description').val(description);
-
-            const action = '{{ route('vendor.categories.update', ':id') }}'.replace(':id', id);
-            $('#editCategoryForm').attr('action', action);
-            $('#editCategoryModal').modal('show');
-        });
-
-        $('#editCategoryForm').on('submit', function (e) {
-            e.preventDefault();
-
-            const form = $(this);
-            const submitButton = form.find('button[type="submit"]');
-            const action = form.attr('action');
-
-            submitButton.prop('disabled', true).html('<i class="bi bi-hourglass-split spin"></i> Updating...');
-
-            $.ajax({
-                url: action,
-                method: 'POST',
-                data: form.serialize(),
-                success: function (response) {
-                    if (response.status === 1) {
-                        toastr.success(response.message);
-                        $('#editCategoryModal').modal('hide');
-                        table.ajax.reload(null, false);
-                    } else {
-                        handleErrors(response.message);
-                    }
-                },
-                error: function (xhr) {
-                    handleErrors(xhr.responseJSON?.message);
-                },
-                complete: function () {
-                    submitButton.prop('disabled', false).html('<i class="bi bi-save"></i> Update Category');
                 }
             });
         });
