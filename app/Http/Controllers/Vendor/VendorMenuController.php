@@ -7,12 +7,14 @@ use Illuminate\Http\Request;
 use App\Models\MenuCategory;
 use App\Models\Menu;
 use App\Models\VendorMenu;
+use App\Models\VendorCategory;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon; // Don't forget to import Carbon if it's not already imported
+use Illuminate\Validation\Rule;
 
 class VendorMenuController extends Controller {
 
@@ -23,13 +25,17 @@ class VendorMenuController extends Controller {
     public function getMenusData(Request $request) {
         $vendorId = auth()->id(); // Get the logged-in vendor's ID
 
-        $menus = VendorMenu::with('menuCategory')
+        $menus = VendorMenu::with(['menuCategory', 'vendorCategory'])
             ->where('vendor_id', $vendorId) // Filter by authenticated vendor
             ->get();
 
         return datatables()->of($menus)
             ->addIndexColumn()
             ->addColumn('category', function ($row) {
+                if ($row->vendorCategory) {
+                    return $row->vendorCategory->name;
+                }
+
                 return $row->menuCategory ? $row->menuCategory->name : 'No category';
             })
             ->addColumn('action', function ($row) {
@@ -57,14 +63,32 @@ class VendorMenuController extends Controller {
 
 
     public function create() {
-        $categories = MenuCategory::all();
-        return view('vendor.menus.create', compact('categories'));
+        $vendorId = auth()->id();
+
+        $categories = VendorCategory::query()
+            ->where('vendor_id', $vendorId)
+            ->where('is_active', true)
+            ->orderBy('display_order')
+            ->orderBy('name')
+            ->get();
+
+        $hasCategories = $categories->isNotEmpty();
+
+        return view('vendor.menus.create', compact('categories', 'hasCategories'));
     }
 
     public function store(Request $request) {
         // Custom validation logic
+        $vendorId = auth()->id();
+
         $validator = Validator::make($request->all(), [
-                    'category_id' => 'required|exists:menu_categories,id',
+                    'category_id' => [
+                        'required',
+                        Rule::exists('vendor_categories', 'id')->where(function ($query) use ($vendorId) {
+                            return $query->where('vendor_id', $vendorId)
+                                ->where('is_active', true);
+                        }),
+                    ],
                     'name' => 'required|string|max:255',
                     'description' => 'nullable|string',
                     'image' => 'nullable|image|mimes:jpg,png,jpeg,gif|max:2048',

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\VendorCategory;
 
 class VendorMenu extends Model
 {
@@ -15,9 +16,9 @@ class VendorMenu extends Model
         return $this->belongsTo(MenuCategory::class);
     }
 
-    // Define the inverse relationship
-    public function category()
+    // Define the relationship with the vendor specific category
+    public function vendorCategory()
     {
-        return $this->belongsTo(MenuCategory::class, 'menu_category_id', 'id');
+        return $this->belongsTo(VendorCategory::class, 'menu_category_id', 'id');
     }
 }
