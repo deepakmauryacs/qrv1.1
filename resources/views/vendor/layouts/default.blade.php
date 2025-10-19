@@ -158,7 +158,7 @@
             <li class="nav-item {{ request()->routeIs('vendor.pos.*') ? 'active' : '' }}">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePos"
                     aria-expanded="{{ request()->routeIs('vendor.pos.*') ? 'true' : 'false' }}" aria-controls="collapsePos">
-                    <i class="bi bi-cash-register"></i>
+                    <i class="bi bi-display"></i>
                     <span>POS</span>
                 </a>
                 <div id="collapsePos" class="collapse {{ request()->routeIs('vendor.pos.*') ? 'show' : '' }}" data-parent="#accordionSidebar">

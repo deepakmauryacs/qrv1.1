@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Profile & Orders</title>
+
+  <!-- Fonts & CSS -->
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+
+  <style>
+    :root { --brand:#0d6efd; }
+    body { font-family:"DM Sans", system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:#f7f8fb; }
+    .page { min-height: 100vh; display:flex; flex-direction:column; }
+    .card { border-radius: 14px; }
+    .avatar {
+      width: 72px; height: 72px; border-radius: 50%;
+      object-fit: cover; border: 3px solid #fff; box-shadow: 0 6px 16px rgba(0,0,0,.06);
+    }
+    .kpi {
+      background:#fff; border:1px solid #eee; border-radius:12px; padding:12px;
+    }
+    .kpi .value { font-weight:700; font-size:1.1rem; }
+    .filter-bar { position: sticky; top: 64px; z-index: 9; background:#fff; border:1px solid #eee; border-radius:12px; }
+    .badge-soft {
+      background: #eef4ff; color:#2b59ff; border:1px solid #dbe8ff;
+    }
+    .order-row:hover { background:#fafbff; }
+    /* Mobile “cards” for orders */
+    @media (max-width: 768px) {
+      .table-responsive { border: none; }
+      table thead { display: none; }
+      table tbody tr { display:block; margin-bottom: 12px; border:1px solid #eee; border-radius:12px; padding:10px; }
+      table tbody td { display:flex; justify-content:space-between; border:0 !important; padding:.35rem .5rem; }
+      table tbody td::before {
+        content: attr(data-label);
+        font-weight:600; color:#6b7280; margin-right:10px;
+      }
+      .filter-bar { top: 56px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <!-- Navbar -->
+    <nav class="navbar bg-white border-bottom">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="#"><i class="bi bi-person-circle text-primary me-2"></i>Profile</a>
+        <div class="d-flex gap-2">
+          <a href="items.html" class="btn btn-outline-secondary btn-sm"><i class="bi bi-basket2"></i> Shop</a>
+          <a href="checkout.html" class="btn btn-primary btn-sm"><i class="bi bi-bag-check"></i> Checkout</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container my-3 my-md-4">
+      <div class="row g-3 g-lg-4">
+        <!-- Left Column: Profile -->
+        <div class="col-12 col-lg-4">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-3">
+                <img id="avatarImg" src="https://i.pravatar.cc/120?img=5" alt="Avatar" class="avatar">
+                <div>
+                  <div class="h5 fw-bold mb-1" id="nameDisplay">Amit Sharma</div>
+                  <div class="text-secondary small" id="emailDisplay">amit@example.com</div>
+                  <div class="text-secondary small" id="phoneDisplay">+91 9876543210</div>
+                </div>
+              </div>
+
+              <hr>
+
+              <div class="section-title fw-bold mb-2">Edit Details</div>
+              <form id="profileForm" class="row g-2">
+                <div class="col-12">
+                  <label class="form-label">Full Name</label>
+                  <input id="nameInput" type="text" class="form-control" value="Amit Sharma">
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Email</label>
+                  <input id="emailInput" type="email" class="form-control" value="amit@example.com">
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Mobile</label>
+                  <input id="phoneInput" type="tel" class="form-control" value="9876543210" maxlength="10" inputmode="numeric">
+                </div>
+                <div class="col-12">
+                  <label class="form-label">GST No. (optional)</label>
+                  <input id="gstInput" type="text" class="form-control" placeholder="e.g., 22AAAAA0000A1Z5">
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Address</label>
+                  <textarea id="addrInput" class="form-control" rows="2" placeholder="Flat, Street, City, Pincode">B-12, River View, Varanasi</textarea>
+                </div>
+                <div class="col-12 d-grid">
+                  <button class="btn btn-primary" type="submit"><i class="bi bi-save me-1"></i> Save Profile</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="mt-3 mt-lg-4">
+            <div class="row g-2">
+              <div class="col-6">
+                <div class="kpi text-center">
+                  <div class="text-secondary small">Orders</div>
+                  <div class="value" id="kpiOrders">0</div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="kpi text-center">
+                  <div class="text-secondary small">Total Spent</div>
+                  <div class="value" id="kpiSpent">₹0</div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="kpi text-center">
+                  <div class="text-secondary small">Active</div>
+                  <div class="value" id="kpiActive">0</div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="kpi text-center">
+                  <div class="text-secondary small">Cancelled</div>
+                  <div class="value" id="kpiCancelled">0</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Orders -->
+        <div class="col-12 col-lg-8">
+          <!-- Filters -->
+          <div class="filter-bar p-3 shadow-sm mb-3">
+            <div class="row g-2 align-items-end">
+              <div class="col-12 col-md-4">
+                <label class="form-label small mb-1">Search (Order ID / Item)</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                  <input id="q" type="text" class="form-control" placeholder="Search orders...">
+                </div>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label small mb-1">Status</label>
+                <select id="status" class="form-select">
+                  <option value="all">All</option>
+                  <option value="placed">Placed</option>
+                  <option value="preparing">Preparing</option>
+                  <option value="ready">Ready</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label small mb-1">Order Type</label>
+                <select id="otype" class="form-select">
+                  <option value="all">All</option>
+                  <option value="pickup">Pickup</option>
+                  <option value="dining">Dining</option>
+                </select>
+              </div>
+              <div class="col-12 col-md-2 d-grid">
+                <button id="clearFilters" class="btn btn-outline-secondary"><i class="bi bi-x-circle"></i> Clear</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Orders Table -->
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="h6 fw-bold mb-0">Order List</div>
+                <div class="text-secondary small">Showing <span id="countShow">0</span> of <span id="countTotal">0</span></div>
+              </div>
+              <div class="table-responsive">
+                <table class="table align-middle">
+                  <thead>
+                    <tr class="text-secondary small">
+                      <th>Order ID</th>
+                      <th>Date</th>
+                      <th>Type</th>
+                      <th>Items</th>
+                      <th>Total</th>
+                      <th>Status</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="orderTbody">
+                    <!-- rows -->
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Pagination (demo) -->
+              <div class="d-flex justify-content-between align-items-center mt-3">
+                <div class="small text-secondary" id="pageInfo">Page 1</div>
+                <div class="btn-group">
+                  <button class="btn btn-outline-secondary btn-sm" id="prevPage"><i class="bi bi-chevron-left"></i></button>
+                  <button class="btn btn-outline-secondary btn-sm" id="nextPage"><i class="bi bi-chevron-right"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty state -->
+          <div id="emptyOrders" class="text-center text-secondary py-5 d-none">
+            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+            No orders found.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Details Modal -->
+  <div class="modal fade" id="orderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="modalTitle">Order Details</h5>
+          <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="modalBody">
+          <!-- filled by JS -->
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+          <button id="reorderBtn" class="btn btn-primary"><i class="bi bi-arrow-repeat me-1"></i> Re-order</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    /* ---------------- Demo Profile + Orders ---------------- */
+    const PROFILE = {
+      name: "Amit Sharma",
+      email: "amit@example.com",
+      phone: "9876543210",
+      address: "B-12, River View, Varanasi",
+      gst: ""
+    };
+
+    // Demo orders (id, date, type, items[], subtotal, gst, total, status)
+    const ORDERS = [
+      { id: "ORD-10017", date: "2025-10-19 19:42", type:"pickup", status:"completed",
+        items: [
+          {name:"Margherita Pizza", qty:1, price:199},
+          {name:"Cold Coffee", qty:2, price:120}
+        ] },
+      { id: "ORD-10018", date: "2025-10-19 20:10", type:"dining", status:"preparing",
+        items: [
+          {name:"Paneer Tikka Pizza", qty:1, price:349}
+        ] },
+      { id: "ORD-10019", date: "2025-10-20 12:05", type:"pickup", status:"ready",
+        items: [
+          {name:"Veggie Supreme", qty:1, price:289},
+          {name:"Lemon Iced Tea", qty:1, price:110}
+        ] },
+      { id: "ORD-10020", date: "2025-10-20 13:30", type:"dining", status:"placed",
+        items: [
+          {name:"Brownie Sundae", qty:2, price:180},
+        ] },
+      { id: "ORD-10021", date: "2025-10-20 14:40", type:"pickup", status:"cancelled",
+        items: [
+          {name:"Cheesecake Slice", qty:1, price:210}
+        ] },
+    ].map(o => {
+      const sub = o.items.reduce((s,i)=>s + i.qty*i.price, 0);
+      const gst = sub * 0.05;
+      return { ...o, subtotal: sub, gst, total: sub + gst };
+    });
+
+    /* ---------------- State & Elements ---------------- */
+    let page = 1, perPage = 5;
+    let filtered = [...ORDERS];
+
+    const el = {
+      nameDisp: document.getElementById('nameDisplay'),
+      emailDisp: document.getElementById('emailDisplay'),
+      phoneDisp: document.getElementById('phoneDisplay'),
+      nameIn: document.getElementById('nameInput'),
+      emailIn: document.getElementById('emailInput'),
+      phoneIn: document.getElementById('phoneInput'),
+      gstIn: document.getElementById('gstInput'),
+      addrIn: document.getElementById('addrInput'),
+      kpiOrders: document.getElementById('kpiOrders'),
+      kpiSpent: document.getElementById('kpiSpent'),
+      kpiActive: document.getElementById('kpiActive'),
+      kpiCancelled: document.getElementById('kpiCancelled'),
+      tbody: document.getElementById('orderTbody'),
+      emptyOrders: document.getElementById('emptyOrders'),
+      countShow: document.getElementById('countShow'),
+      countTotal: document.getElementById('countTotal'),
+      pageInfo: document.getElementById('pageInfo'),
+      q: document.getElementById('q'),
+      status: document.getElementById('status'),
+      otype: document.getElementById('otype'),
+      clear: document.getElementById('clearFilters'),
+      modalTitle: document.getElementById('modalTitle'),
+      modalBody: document.getElementById('modalBody'),
+      reorderBtn: document.getElementById('reorderBtn'),
+    };
+
+    /* ---------------- Init Profile ---------------- */
+    function loadProfile() {
+      el.nameDisp.textContent = PROFILE.name;
+      el.emailDisp.textContent = PROFILE.email;
+      el.phoneDisp.textContent = "+91 " + PROFILE.phone;
+
+      el.nameIn.value = PROFILE.name;
+      el.emailIn.value = PROFILE.email;
+      el.phoneIn.value = PROFILE.phone;
+      el.gstIn.value = PROFILE.gst || "";
+      el.addrIn.value = PROFILE.address || "";
+    }
+
+    document.getElementById('profileForm').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      // basic validations
+      const name = el.nameIn.value.trim();
+      const phone = el.phoneIn.value.trim();
+      if (!name) return alert("Please enter your name");
+      if (!/^\d{10}$/.test(phone)) return alert("Enter 10-digit mobile number");
+
+      PROFILE.name = name;
+      PROFILE.email = el.emailIn.value.trim();
+      PROFILE.phone = phone;
+      PROFILE.gst = el.gstIn.value.trim();
+      PROFILE.address = el.addrIn.value.trim();
+      loadProfile();
+      alert("Profile saved!");
+    });
+
+    /* ---------------- KPIs ---------------- */
+    function renderKPIs() {
+      const totalOrders = ORDERS.length;
+      const totalSpent = ORDERS.reduce((s,o)=>s+o.total,0);
+      const active = ORDERS.filter(o=>["placed","preparing","ready"].includes(o.status)).length;
+      const cancelled = ORDERS.filter(o=>o.status==="cancelled").length;
+
+      el.kpiOrders.textContent = totalOrders;
+      el.kpiSpent.textContent = "₹" + totalSpent.toFixed(2);
+      el.kpiActive.textContent = active;
+      el.kpiCancelled.textContent = cancelled;
+    }
+
+    /* ---------------- Filters + Pagination ---------------- */
+    function applyFilters() {
+      const q = el.q.value.trim().toLowerCase();
+      const st = el.status.value;
+      const ot = el.otype.value;
+
+      filtered = ORDERS.filter(o=>{
+        const matchesQ = !q || o.id.toLowerCase().includes(q) || o.items.some(i=>i.name.toLowerCase().includes(q));
+        const matchesS = (st === "all") || (o.status === st);
+        const matchesT = (ot === "all") || (o.type === ot);
+        return matchesQ && matchesS && matchesT;
+      });
+
+      page = 1;
+      renderOrders();
+    }
+
+    function renderOrders() {
+      const total = filtered.length;
+      el.countTotal.textContent = total;
+      if (total === 0) {
+        el.tbody.innerHTML = "";
+        el.emptyOrders.classList.remove('d-none');
+        el.countShow.textContent = "0";
+        el.pageInfo.textContent = "Page 0";
+        return;
+      }
+      el.emptyOrders.classList.add('d-none');
+
+      const start = (page-1)*perPage;
+      const slice = filtered.slice(start, start+perPage);
+      el.countShow.textContent = slice.length;
+
+      el.tbody.innerHTML = slice.map(o=>{
+        const badge = statusBadge(o.status);
+        const typeIcon = o.type === "pickup" ? `<i class="bi bi-bag"></i>` : `<i class="bi bi-shop"></i>`;
+        const itemsText = o.items.map(i=>`${i.name} x${i.qty}`).join(", ");
+        return `
+          <tr class="order-row">
+            <td data-label="Order">${o.id}</td>
+            <td data-label="Date">${o.date}</td>
+            <td data-label="Type">${typeIcon} ${title(o.type)}</td>
+            <td data-label="Items">${itemsText}</td>
+            <td data-label="Total">₹${o.total.toFixed(2)}</td>
+            <td data-label="Status">${badge}</td>
+            <td data-label=""><button class="btn btn-sm btn-outline-primary" data-action="view" data-id="${o.id}">
+              <i class="bi bi-eye"></i>
+            </button></td>
+          </tr>
+        `;
+      }).join('');
+
+      el.pageInfo.textContent = `Page ${page}`;
+    }
+
+    function statusBadge(st) {
+      const map = {
+        placed: {text:"Placed", cls:"badge bg-secondary"},
+        preparing: {text:"Preparing", cls:"badge bg-warning text-dark"},
+        ready: {text:"Ready", cls:"badge bg-info text-dark"},
+        completed: {text:"Completed", cls:"badge bg-success"},
+        cancelled: {text:"Cancelled", cls:"badge bg-danger"},
+      };
+      const m = map[st] || {text:title(st), cls:"badge badge-soft"};
+      return `<span class="${m.cls}">${m.text}</span>`;
+    }
+    const title = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+    /* ---------------- View Details Modal ---------------- */
+    document.addEventListener('click', (e)=>{
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      const action = btn.dataset.action;
+      if (action === 'view') {
+        const id = btn.dataset.id;
+        const order = ORDERS.find(o=>o.id === id);
+        if (!order) return;
+
+        el.modalTitle.textContent = `${order.id} • ${title(order.status)} • ₹${order.total.toFixed(2)}`;
+
+        el.modalBody.innerHTML = `
+          <div class="row g-2">
+            <div class="col-6 col-md-3"><strong>Order ID</strong><div>${order.id}</div></div>
+            <div class="col-6 col-md-3"><strong>Date</strong><div>${order.date}</div></div>
+            <div class="col-6 col-md-3"><strong>Type</strong><div>${title(order.type)}</div></div>
+            <div class="col-6 col-md-3"><strong>Status</strong><div>${statusBadge(order.status)}</div></div>
+          </div>
+          <hr>
+          <div class="fw-bold mb-2">Items</div>
+          <div class="list-group mb-3">
+            ${order.items.map(i=>`
+              <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>${i.name} <span class="text-secondary">×${i.qty}</span></div>
+                <div>₹${(i.qty*i.price).toFixed(2)}</div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="d-flex flex-column gap-1">
+            <div class="d-flex justify-content-between"><span class="text-secondary">Subtotal</span><span>₹${order.subtotal.toFixed(2)}</span></div>
+            <div class="d-flex justify-content-between"><span class="text-secondary">GST (5%)</span><span>₹${order.gst.toFixed(2)}</span></div>
+            <div class="d-flex justify-content-between fw-bold"><span>Total</span><span>₹${order.total.toFixed(2)}</span></div>
+          </div>
+        `;
+        el.reorderBtn.dataset.id = order.id;
+
+        const modal = new bootstrap.Modal(document.getElementById('orderModal'));
+        modal.show();
+      }
+    });
+
+    // Re-order (demo)
+    el.reorderBtn.addEventListener('click', ()=>{
+      const id = el.reorderBtn.dataset.id;
+      const order = ORDERS.find(o=>o.id === id);
+      if (!order) return;
+      // In real app: POST to /orders/reorder
+      alert(`Re-order created from ${order.id} with ${order.items.length} items.`);
+    });
+
+    /* ---------------- Events ---------------- */
+    el.q.addEventListener('input', applyFilters);
+    el.status.addEventListener('change', applyFilters);
+    el.otype.addEventListener('change', applyFilters);
+    el.clear.addEventListener('click', ()=>{
+      el.q.value = '';
+      el.status.value = 'all';
+      el.otype.value = 'all';
+      applyFilters();
+    });
+
+    document.getElementById('prevPage').addEventListener('click', ()=>{
+      if (page > 1) { page--; renderOrders(); }
+    });
+    document.getElementById('nextPage').addEventListener('click', ()=>{
+      const maxPage = Math.max(1, Math.ceil(filtered.length / perPage));
+      if (page < maxPage) { page++; renderOrders(); }
+    });
+
+    /* ---------------- Init ---------------- */
+    loadProfile();
+    renderKPIs();
+    applyFilters(); // sets filtered + renderOrders
+  </script>
+</body>
+</html>
