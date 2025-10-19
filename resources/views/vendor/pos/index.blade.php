@@ -9,47 +9,64 @@
         flex-direction: column;
         height: 100%;
     }
-
-    .pos-product-card-body #productFeedback {
-        flex-shrink: 0;
-    }
-
+    .pos-product-card-body #productFeedback { flex-shrink: 0; }
     .pos-product-card-body #productList {
         flex: 1 1 auto;
-        overflow-y: auto;
-        overflow-x: hidden;
-        margin: 0;
-        padding-right: 0.25rem;
-        padding-bottom: 0.5rem;
+        overflow-y: auto; overflow-x: hidden;
+        padding-right: .25rem; padding-bottom: .5rem;
         -webkit-overflow-scrolling: touch;
     }
+    .pos-product-card-body #productList::-webkit-scrollbar { width: 8px; }
+    .pos-product-card-body #productList::-webkit-scrollbar-track { background:#f1f1f1; border-radius:4px; }
+    .pos-product-card-body #productList::-webkit-scrollbar-thumb { background:rgba(0,0,0,.25); border-radius:4px; }
 
-    .pos-product-card-body #productList::-webkit-scrollbar {
-        width: 8px;
+    @media (min-width: 992px){ .pos-product-card-body #productList{ max-height: calc(100vh - 320px);} }
+    @media (max-width: 991.98px){ .pos-product-card-body #productList{ max-height: none;} }
+
+    /* ---------- Product card redesign ---------- */
+    .pos-card {
+        border: 1px solid rgba(0,0,0,.06);
+        border-radius: .75rem;
+        transition: box-shadow .2s ease, transform .1s ease;
+        background: #fff;
+    }
+    .pos-card:hover { box-shadow: 0 8px 22px rgba(0,0,0,.08); transform: translateY(-1px); }
+
+    .pos-card-body { padding: .875rem .9rem 0 .9rem; display:flex; flex-direction:column; height:100%; }
+    .pos-title {
+        font-weight: 700; font-size: .98rem; line-height: 1.25rem; margin-bottom:.25rem;
+        display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical;
+    }
+    .pos-desc {
+        color:#6c757d; font-size:.82rem; margin-bottom:.5rem;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     }
 
-    .pos-product-card-body #productList::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 4px;
+    .pos-price-block {
+        display:flex; flex-direction:column; gap:.4rem; margin-bottom:.75rem;
+        background:#f8f9fa; border:1px solid rgba(0,0,0,.06); border-radius:.5rem; padding:.55rem .6rem;
     }
-
-    .pos-product-card-body #productList::-webkit-scrollbar-thumb {
-        background-color: rgba(0, 0, 0, 0.25);
-        border-radius: 4px;
+    .pos-price-badge {
+        display:flex; flex-direction:column; line-height:1.05;
+        background:#fff; border:1px solid rgba(0,0,0,.08); border-radius:.35rem;
+        padding:.45rem .5rem; width:100%;
     }
+    .pos-price-badge .val { font-weight:800; font-size:1rem; color:#111; }
+    .pos-price-badge .unit { font-size:.68rem; letter-spacing:.04em; color:#6c757d; text-transform:uppercase; }
 
-    @media (min-width: 992px) {
-        .pos-product-card-body #productList {
-            max-height: calc(100vh - 320px);
-        }
+    .pos-variant { width:100%; }
+    .pos-variant.custom-select-sm { font-size:.88rem; padding:.35rem .6rem; }
+
+    .pos-card-footer {
+        margin-top:auto; padding:.65rem .9rem .9rem .9rem; background:transparent; border-top:0;
     }
-
-    @media (max-width: 991.98px) {
-        .pos-product-card-body #productList {
-            max-height: none;
-        }
+    .btn-add {
+        width:100%;
+        display:inline-flex; align-items:center; justify-content:center; gap:.4rem;
+        font-weight:600;
     }
 </style>
+
 <div class="container-fluid">
     <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Restaurant POS</h1>
@@ -91,6 +108,7 @@
                 </div>
             </div>
         </div>
+
         <div class="col-lg-5 mb-4">
             <div class="card shadow-sm h-100">
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
@@ -116,9 +134,9 @@
                             <thead class="thead-light">
                                 <tr>
                                     <th>Item</th>
-                                    <th class="text-center" style="width: 120px;">Qty</th>
-                                    <th class="text-right" style="width: 90px;">Price</th>
-                                    <th class="text-right" style="width: 100px;">Total</th>
+                                    <th class="text-center" style="width:120px;">Qty</th>
+                                    <th class="text-right" style="width:90px;">Price</th>
+                                    <th class="text-right" style="width:100px;">Total</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -137,7 +155,7 @@
                         </div>
                         <div class="d-flex justify-content-between align-items-center mt-2">
                             <label for="discountAmount" class="mb-0">Discount</label>
-                            <input type="number" min="0" step="0.01" id="discountAmount" class="form-control form-control-sm text-right" style="width: 120px;" value="0">
+                            <input type="number" min="0" step="0.01" id="discountAmount" class="form-control form-control-sm text-right" style="width:120px;" value="0">
                         </div>
                         <div class="d-flex justify-content-between mt-3">
                             <span>Total</span>
@@ -210,9 +228,9 @@
                         <thead>
                             <tr>
                                 <th>Item</th>
-                                <th class="text-center" style="width: 80px;">Qty</th>
-                                <th class="text-right" style="width: 90px;">Price</th>
-                                <th class="text-right" style="width: 100px;">Total</th>
+                                <th class="text-center" style="width:80px;">Qty</th>
+                                <th class="text-right" style="width:90px;">Price</th>
+                                <th class="text-right" style="width:100px;">Total</th>
                             </tr>
                         </thead>
                         <tbody id="detailItems"></tbody>
@@ -254,15 +272,7 @@
     let currentOrderId = null;
 
     const formatMoney = (value) => parseFloat(value || 0).toFixed(2);
-    const priceTypeLabel = (type) => {
-        if (type === 'half') {
-            return 'Half';
-        }
-        if (type === 'full') {
-            return 'Full';
-        }
-        return '';
-    };
+    const priceTypeLabel = (type) => type === 'half' ? 'Half' : (type === 'full' ? 'Full' : '');
 
     const debounce = (func, wait = 300) => {
         let timeout;
@@ -276,112 +286,91 @@
         $('#placeOrder').prop('disabled', cart.length === 0);
     };
 
+    // ---------- Redesigned Product Card ----------
     const createProductCard = (item) => {
         const column = $('<div>').addClass('col-md-6 col-xl-4 mb-3');
-        const card = $('<div>').addClass('border rounded h-100 d-flex flex-column product-card shadow-sm');
-        const body = $('<div>').addClass('p-3 flex-fill');
-        const footer = $('<div>').addClass('p-3 border-top bg-light text-right');
 
-        $('<h6>').addClass('mb-1 text-dark').text(item.name).appendTo(body);
-        $('<small>').addClass('text-muted d-block mb-2').text(item.description ? item.description.substring(0, 60) : '').appendTo(body);
-        const priceRow = $('<div>').addClass('d-flex align-items-center justify-content-between mb-2');
-        const priceBadge = $('<span>').addClass('badge badge-light border mb-0 price-display d-inline-flex flex-column align-items-start text-left');
+        const card = $('<div>').addClass('pos-card d-flex flex-column product-card');
+        const body = $('<div>').addClass('pos-card-body');
+
+        $('<div>').addClass('pos-title').text(item.name).appendTo(body);
+        $('<div>').addClass('pos-desc').text(item.description ? item.description.substring(0, 90) : '').appendTo(body);
+
+        // Price block (stacked)
+        const priceBlock = $('<div>').addClass('pos-price-block');
+
+        const priceBadge = $('<div>').addClass('pos-price-badge');
+        priceBadge.append(`<span class="val">₹ ${formatMoney(item.price_full || item.price_half || 0)}</span>`);
+        priceBadge.append(`<span class="unit">${item.price_full != null ? 'FULL' : (item.price_half != null ? 'HALF' : 'PRICE')}</span>`);
+
+        priceBlock.append(priceBadge);
+
         const priceOptions = [];
-
-        if (item.price_full !== null && item.price_full !== undefined) {
-            priceOptions.push({ type: 'full', value: parseFloat(item.price_full) });
-        }
-
-        if (item.price_half !== null && item.price_half !== undefined) {
-            priceOptions.push({ type: 'half', value: parseFloat(item.price_half) });
-        }
+        if (item.price_full !== null && item.price_full !== undefined) priceOptions.push({ type: 'full', value: parseFloat(item.price_full) });
+        if (item.price_half !== null && item.price_half !== undefined) priceOptions.push({ type: 'half', value: parseFloat(item.price_half) });
 
         let defaultOption = priceOptions.length ? priceOptions[0] : null;
         let priceSelect = null;
 
         if (priceOptions.length) {
-            priceSelect = $('<select>').addClass('custom-select custom-select-sm price-type-select w-auto');
-
+            priceSelect = $('<select>').addClass('custom-select custom-select-sm pos-variant');
             priceOptions.forEach(option => {
-                const optionElement = $('<option>')
-                    .val(option.type)
-                    .data('price', option.value)
-                    .text(`${priceTypeLabel(option.type)} - ₹ ${formatMoney(option.value)}`);
-                priceSelect.append(optionElement);
+                priceSelect.append(
+                    $('<option>')
+                        .val(option.type)
+                        .data('price', option.value)
+                        .text(`${priceTypeLabel(option.type)} - ₹ ${formatMoney(option.value)}`)
+                );
             });
-
-            if (defaultOption) {
-                priceSelect.val(defaultOption.type);
-            }
-
-            if (priceOptions.length === 1) {
-                priceSelect.prop('disabled', true);
-            }
-
-            const selectWrapper = $('<div>').addClass('ml-2');
-            selectWrapper.append(priceSelect);
-            priceRow.append(priceBadge).append(selectWrapper);
-        } else {
-            priceRow.append(priceBadge);
+            if (defaultOption) priceSelect.val(defaultOption.type);
+            if (priceOptions.length === 1) priceSelect.prop('disabled', true);
+            priceBlock.append(priceSelect);
         }
 
-        const updatePriceBadge = () => {
-            if (!priceOptions.length) {
-                priceBadge.text('Price unavailable');
-                return;
-            }
+        body.append(priceBlock);
 
-            let priceType = defaultOption ? defaultOption.type : null;
-            let priceValue = defaultOption ? defaultOption.value : 0;
+        // Footer with full width Add button
+        const footer = $('<div>').addClass('pos-card-footer');
+        const addBtn = $('<button>')
+            .addClass('btn btn-primary btn-sm btn-add add-to-cart')
+            .html('<i class="bi bi-plus-circle"></i> Add');
 
-            if (priceSelect) {
-                priceType = priceSelect.val();
-                const selectedOption = priceSelect.find('option:selected');
-                priceValue = parseFloat(selectedOption.data('price')) || 0;
-            }
+        // store default values
+        addBtn.data({
+            id: item.id,
+            name: item.name,
+            price: defaultOption ? defaultOption.value : (item.price_full || item.price_half || 0),
+            priceType: defaultOption ? defaultOption.type : (item.price_full != null ? 'full' : (item.price_half != null ? 'half' : null))
+        });
 
-            if (priceValue > 0) {
-                const priceLines = [
-                    `<span class="d-block font-weight-bold text-dark">₹ ${formatMoney(priceValue)}</span>`
-                ];
-
-                const label = priceTypeLabel(priceType);
-                if (label) {
-                    priceLines.push(`<span class="d-block text-muted text-uppercase small">${label}</span>`);
-                }
-
-                priceBadge.html(priceLines.join(''));
-            } else {
-                priceBadge.text('Price unavailable');
-            }
-        };
-
-        updatePriceBadge();
-
-        if (priceSelect) {
-            priceSelect.on('change', updatePriceBadge);
-        }
-
-        body.append(priceRow);
-
-        const button = $('<button>').addClass('btn btn-sm btn-primary add-to-cart')
-            .append($('<i>').addClass('bi bi-plus-circle'))
-            .append(' Add');
-        button.data('id', item.id);
-        button.data('name', item.name);
-        button.data('price', defaultOption ? defaultOption.value : 0);
-        button.data('priceType', defaultOption ? defaultOption.type : null);
-
-        footer.append(button);
+        footer.append(addBtn);
         card.append(body).append(footer);
         column.append(card);
+
+        // Update price badge on change
+        const updatePriceBadge = () => {
+            let priceType = priceSelect ? priceSelect.val() : (defaultOption ? defaultOption.type : null);
+            const selectedOption = priceSelect ? priceSelect.find('option:selected') : null;
+            const priceValue = selectedOption ? parseFloat(selectedOption.data('price')) : (defaultOption ? defaultOption.value : 0);
+
+            if (priceValue > 0) {
+                priceBadge.find('.val').text(`₹ ${formatMoney(priceValue)}`);
+                priceBadge.find('.unit').text(priceTypeLabel(priceType).toUpperCase());
+                addBtn.data('price', priceValue);
+                addBtn.data('priceType', priceType);
+            } else {
+                priceBadge.find('.val').text('—');
+                priceBadge.find('.unit').text('PRICE');
+            }
+        };
+        if (priceSelect) priceSelect.on('change', updatePriceBadge);
+
         return column;
     };
 
     const renderProducts = (items) => {
         const list = $('#productList');
         const feedback = $('#productFeedback');
-
         list.empty();
 
         if (!items.length) {
@@ -389,17 +378,15 @@
             feedback.show();
             return;
         }
-
         feedback.hide();
         items.forEach(item => list.append(createProductCard(item)));
     };
 
     const refreshTotals = () => {
-        const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+        const subtotal = cart.reduce((t, i) => t + (i.price * i.quantity), 0);
         const discountInput = parseFloat($('#discountAmount').val()) || 0;
         const discount = Math.min(discountInput, subtotal);
         const total = subtotal - discount;
-
         $('#subtotalAmount').text(formatMoney(subtotal));
         $('#totalAmount').text(formatMoney(total));
     };
@@ -421,7 +408,7 @@
                 const qtyGroup = $('<div>').addClass('input-group input-group-sm justify-content-center flex-nowrap');
                 const decrease = $('<button>').attr('type', 'button').addClass('btn btn-outline-secondary quantity-decrease').data('key', item.key).append($('<i>').addClass('bi bi-dash'));
                 const increase = $('<button>').attr('type', 'button').addClass('btn btn-outline-secondary quantity-increase').data('key', item.key).append($('<i>').addClass('bi bi-plus'));
-                const qtyInput = $('<input>').attr({ type: 'number', min: 1 }).addClass('form-control form-control-sm text-center cart-quantity').css('width', '60px').data('key', item.key).val(item.quantity);
+                const qtyInput = $('<input>').attr({ type: 'number', min: 1 }).addClass('form-control form-control-sm text-center cart-quantity').css('width','60px').data('key', item.key).val(item.quantity);
                 $('<div>').addClass('input-group-prepend').append(decrease).appendTo(qtyGroup);
                 qtyGroup.append(qtyInput);
                 $('<div>').addClass('input-group-append').append(increase).appendTo(qtyGroup);
@@ -433,11 +420,9 @@
                 const removeCell = $('<td>').addClass('text-right');
                 const removeButton = $('<button>').addClass('btn btn-link text-danger p-0 remove-item').data('key', item.key).append($('<i>').addClass('bi bi-trash'));
                 removeCell.append(removeButton).appendTo(row);
-
                 body.append(row);
             });
         }
-
         togglePlaceOrderState();
         refreshTotals();
     };
@@ -450,58 +435,49 @@
             category_id: activeCategory || undefined,
             search: $('#productSearch').val()
         })
-            .done(response => {
-                renderProducts(response.data || []);
-            })
-            .fail(() => {
-                $('#productFeedback').text('Unable to load menu items at the moment.');
-            });
+        .done(response => renderProducts(response.data || []))
+        .fail(() => $('#productFeedback').text('Unable to load menu items at the moment.'));
     };
 
     const loadOrders = () => {
         $.get(ordersUrl)
-            .done(response => {
-                const data = response.data || [];
-                const body = $('#orderHistoryTable tbody');
-                body.find('tr').not('#ordersEmptyRow').remove();
+        .done(response => {
+            const data = response.data || [];
+            const body = $('#orderHistoryTable tbody');
+            body.find('tr').not('#ordersEmptyRow').remove();
 
-                if (!data.length) {
-                    $('#ordersEmptyRow').show();
-                    return;
-                }
+            if (!data.length) {
+                $('#ordersEmptyRow').show();
+                return;
+            }
 
-                $('#ordersEmptyRow').hide();
-                data.forEach(order => {
-                    const row = $('<tr>');
-                    $('<td>').html(`<strong>#${order.reference}</strong>`).appendTo(row);
-                    $('<td>').text(order.customer_name).appendTo(row);
-                    $('<td>').text(order.customer_email || '-').appendTo(row);
-                    $('<td>').text(order.customer_contact).appendTo(row);
-                    $('<td>').addClass('text-right').text(`₹ ${formatMoney(order.total_amount)}`).appendTo(row);
-                    $('<td>').addClass('text-right').text(order.created_at).appendTo(row);
+            $('#ordersEmptyRow').hide();
+            data.forEach(order => {
+                const row = $('<tr>');
+                $('<td>').html(`<strong>#${order.reference}</strong>`).appendTo(row);
+                $('<td>').text(order.customer_name).appendTo(row);
+                $('<td>').text(order.customer_email || '-').appendTo(row);
+                $('<td>').text(order.customer_contact).appendTo(row);
+                $('<td>').addClass('text-right').text(`₹ ${formatMoney(order.total_amount)}`).appendTo(row);
+                $('<td>').addClass('text-right').text(order.created_at).appendTo(row);
 
-                    const actionCell = $('<td>').addClass('text-right');
-                    const group = $('<div>').addClass('btn-group btn-group-sm').attr('role', 'group');
-                    const viewBtn = $('<button>').addClass('btn btn-outline-primary view-order').data('id', order.id).append($('<i>').addClass('bi bi-eye'));
-                    const printBtn = $('<button>').addClass('btn btn-outline-secondary print-order').data('id', order.id).append($('<i>').addClass('bi bi-printer'));
-                    group.append(viewBtn, printBtn);
-                    actionCell.append(group).appendTo(row);
-
-                    body.append(row);
-                });
-            })
-            .fail(() => {
-                toastr.error('Unable to load orders right now.');
+                const actionCell = $('<td>').addClass('text-right');
+                const group = $('<div>').addClass('btn-group btn-group-sm').attr('role','group');
+                const viewBtn = $('<button>').addClass('btn btn-outline-primary view-order').data('id', order.id).append($('<i>').addClass('bi bi-eye'));
+                const printBtn = $('<button>').addClass('btn btn-outline-secondary print-order').data('id', order.id).append($('<i>').addClass('bi bi-printer'));
+                group.append(viewBtn, printBtn);
+                actionCell.append(group).appendTo(row);
+                body.append(row);
             });
+        })
+        .fail(() => toastr.error('Unable to load orders right now.'));
     };
 
     const resetCart = () => {
         cart = [];
         $('#discountAmount').val(0);
         const form = $('#customerForm')[0];
-        if (form) {
-            form.reset();
-        }
+        if (form) form.reset();
         renderCart();
     };
 
@@ -516,183 +492,130 @@
 
         $('#productSearch').on('input', debounce(loadProducts, 400));
 
+        // Add to cart
         $('#productList').on('click', '.add-to-cart', function () {
             const button = $(this);
             const id = parseInt(button.data('id'), 10);
             const name = button.data('name');
             let price = parseFloat(button.data('price')) || 0;
             let priceType = button.data('priceType') || null;
-            const card = button.closest('.product-card');
-            const priceSelect = card.find('.price-type-select');
 
+            const card = button.closest('.product-card');
+            const priceSelect = card.find('.pos-variant');
             if (priceSelect.length) {
                 priceType = priceSelect.val();
                 const selectedOption = priceSelect.find('option:selected');
                 price = parseFloat(selectedOption.data('price')) || 0;
             }
 
-            if (!price) {
-                toastr.warning('Price is not available for this item.');
-                return;
-            }
+            if (!price) { toastr.warning('Price is not available for this item.'); return; }
 
             const key = `${id}-${priceType || 'default'}`;
-            const existing = cart.find(item => item.key === key);
-            if (existing) {
-                existing.quantity += 1;
-            } else {
-                cart.push({ key, id, name, priceType, price, quantity: 1 });
-            }
+            const existing = cart.find(it => it.key === key);
+            if (existing) existing.quantity += 1;
+            else cart.push({ key, id, name, priceType, price, quantity: 1 });
 
             renderCart();
         });
 
+        // Cart interactions
         $('#cartTable').on('click', '.remove-item', function () {
             const key = $(this).data('key');
-            cart = cart.filter(item => item.key !== key);
+            cart = cart.filter(i => i.key !== key);
             renderCart();
         });
-
         $('#cartTable').on('click', '.quantity-increase', function () {
             const key = $(this).data('key');
-            const item = cart.find(entry => entry.key === key);
-            if (item) {
-                item.quantity += 1;
-                renderCart();
-            }
+            const item = cart.find(e => e.key === key);
+            if (item) { item.quantity += 1; renderCart(); }
         });
-
         $('#cartTable').on('click', '.quantity-decrease', function () {
             const key = $(this).data('key');
-            const item = cart.find(entry => entry.key === key);
-            if (item && item.quantity > 1) {
-                item.quantity -= 1;
-                renderCart();
-            }
+            const item = cart.find(e => e.key === key);
+            if (item && item.quantity > 1) { item.quantity -= 1; renderCart(); }
         });
-
         $('#cartTable').on('change', '.cart-quantity', function () {
             const key = $(this).data('key');
             let value = parseInt($(this).val(), 10);
-            if (Number.isNaN(value) || value < 1) {
-                value = 1;
-            }
-            const item = cart.find(entry => entry.key === key);
-            if (item) {
-                item.quantity = value;
-                renderCart();
-            }
+            if (Number.isNaN(value) || value < 1) value = 1;
+            const item = cart.find(e => e.key === key);
+            if (item) { item.quantity = value; renderCart(); }
         });
 
         $('#discountAmount').on('input', function () {
-            if (parseFloat($(this).val()) < 0) {
-                $(this).val(0);
-            }
+            if (parseFloat($(this).val()) < 0) $(this).val(0);
             refreshTotals();
         });
 
-        $('#clearCart').on('click', function () {
-            resetCart();
-        });
-
-        $('#startNewOrder').on('click', function () {
-            resetCart();
-            toastr.info('Ready for a new order.');
-        });
+        $('#clearCart').on('click', function () { resetCart(); });
+        $('#startNewOrder').on('click', function () { resetCart(); toastr.info('Ready for a new order.'); });
 
         $('#placeOrder').on('click', function () {
-            if (!cart.length) {
-                toastr.warning('Add at least one item to the cart.');
-                return;
-            }
+            if (!cart.length) { toastr.warning('Add at least one item to the cart.'); return; }
 
             const name = $('#customerName').val().trim();
             const contact = $('#customerContact').val().trim();
-
-            if (!name || !contact) {
-                toastr.error('Customer name and contact are required.');
-                return;
-            }
+            if (!name || !contact) { toastr.error('Customer name and contact are required.'); return; }
 
             const payload = {
                 customer_name: name,
                 customer_contact: contact,
                 discount_amount: parseFloat($('#discountAmount').val()) || 0,
-                items: cart.map(item => ({
-                    id: item.id,
-                    quantity: item.quantity,
-                    price_type: item.priceType,
-                })),
+                items: cart.map(item => ({ id: item.id, quantity: item.quantity, price_type: item.priceType }))
             };
 
             $('#placeOrder').prop('disabled', true).text('Saving...');
-
             $.ajax({
-                url: orderStoreUrl,
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(payload),
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                },
+                url: orderStoreUrl, method: 'POST', contentType: 'application/json',
+                data: JSON.stringify(payload), headers: { 'X-CSRF-TOKEN': csrfToken }
             })
-                .done(response => {
-                    toastr.success('Order placed successfully.');
-                    resetCart();
-                    loadOrders();
-                    currentOrderId = response.order_id;
-                    const printUrl = orderPrintTemplate.replace('__ORDER__', currentOrderId);
-                    window.open(printUrl, '_blank');
-                })
-                .fail(error => {
-                    if (error.responseJSON && error.responseJSON.errors) {
-                        error.responseJSON.errors.forEach(message => toastr.error(message));
-                    } else {
-                        toastr.error('Unable to save the order right now.');
-                    }
-                })
-                .always(() => {
-                    $('#placeOrder').prop('disabled', cart.length === 0).html('<i class="bi bi-check-circle"></i> Place Order');
-                });
+            .done(response => {
+                toastr.success('Order placed successfully.');
+                resetCart(); loadOrders();
+                currentOrderId = response.order_id;
+                const printUrl = orderPrintTemplate.replace('__ORDER__', currentOrderId);
+                window.open(printUrl, '_blank');
+            })
+            .fail(error => {
+                if (error.responseJSON && error.responseJSON.errors)
+                    error.responseJSON.errors.forEach(m => toastr.error(m));
+                else toastr.error('Unable to save the order right now.');
+            })
+            .always(() => {
+                $('#placeOrder').prop('disabled', cart.length === 0).html('<i class="bi bi-check-circle"></i> Place Order');
+            });
         });
 
-        $('#refreshOrders, #refreshOrdersTop').on('click', function () {
-            loadOrders();
-        });
+        $('#refreshOrders, #refreshOrdersTop').on('click', function () { loadOrders(); });
 
         $('#orderHistoryTable').on('click', '.view-order', function () {
             const id = $(this).data('id');
             const url = orderShowTemplate.replace('__ORDER__', id);
 
             $.get(url)
-                .done(response => {
-                    currentOrderId = response.id;
-                    $('#detailOrderNumber').text(`#${response.reference}`);
-                    $('#detailCustomer').text(response.customer_name);
-                    $('#detailContact').text(response.customer_contact);
-                    $('#detailCreated').text(response.created_at);
+            .done(response => {
+                currentOrderId = response.id;
+                $('#detailOrderNumber').text(`#${response.reference}`);
+                $('#detailCustomer').text(response.customer_name);
+                $('#detailContact').text(response.customer_contact);
+                $('#detailCreated').text(response.created_at);
 
-                    const itemsBody = $('#detailItems');
-                    itemsBody.empty();
-
-                    (response.items || []).forEach(item => {
-                        const row = $('<tr>');
-                        $('<td>').text(item.item_name).appendTo(row);
-                        $('<td>').addClass('text-center').text(item.quantity).appendTo(row);
-                        $('<td>').addClass('text-right').text(`₹ ${formatMoney(item.unit_price)}`).appendTo(row);
-                        $('<td>').addClass('text-right').text(`₹ ${formatMoney(item.line_total)}`).appendTo(row);
-                        itemsBody.append(row);
-                    });
-
-                    $('#detailSubtotal').text(`₹ ${formatMoney(response.subtotal)}`);
-                    $('#detailDiscount').text(`₹ ${formatMoney(response.discount_amount)}`);
-                    $('#detailTotal').text(`₹ ${formatMoney(response.total_amount)}`);
-
-                    $('#orderDetailsModal').modal('show');
-                })
-                .fail(() => {
-                    toastr.error('Unable to fetch order details.');
+                const itemsBody = $('#detailItems'); itemsBody.empty();
+                (response.items || []).forEach(item => {
+                    const row = $('<tr>');
+                    $('<td>').text(item.item_name).appendTo(row);
+                    $('<td>').addClass('text-center').text(item.quantity).appendTo(row);
+                    $('<td>').addClass('text-right').text(`₹ ${formatMoney(item.unit_price)}`).appendTo(row);
+                    $('<td>').addClass('text-right').text(`₹ ${formatMoney(item.line_total)}`).appendTo(row);
+                    itemsBody.append(row);
                 });
+
+                $('#detailSubtotal').text(`₹ ${formatMoney(response.subtotal)}`);
+                $('#detailDiscount').text(`₹ ${formatMoney(response.discount_amount)}`);
+                $('#detailTotal').text(`₹ ${formatMoney(response.total_amount)}`);
+                $('#orderDetailsModal').modal('show');
+            })
+            .fail(() => toastr.error('Unable to fetch order details.'));
         });
 
         $('#orderHistoryTable').on('click', '.print-order', function () {
@@ -702,9 +625,7 @@
         });
 
         $('#detailPrint').on('click', function () {
-            if (!currentOrderId) {
-                return;
-            }
+            if (!currentOrderId) return;
             const url = orderPrintTemplate.replace('__ORDER__', currentOrderId);
             window.open(url, '_blank');
         });
