@@ -89,9 +89,19 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-primary" id="detailPrint">
-                    <i class="bi bi-printer"></i> Print
-                </button>
+                <div class="btn-group" role="group" id="detailPrintGroup">
+                    <button type="button" class="btn btn-outline-primary detail-print" data-format="80mm">
+                        <i class="bi bi-printer"></i>
+                        <span class="d-none d-sm-inline"> Print 80mm</span>
+                    </button>
+                    <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a class="dropdown-item detail-print" data-format="80mm" href="#">Print 80mm</a>
+                        <a class="dropdown-item detail-print" data-format="a4" href="#">Print A4</a>
+                    </div>
+                </div>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
@@ -115,6 +125,21 @@
         if (status === 'draft') return 'badge badge-warning';
         if (status === 'completed') return 'badge badge-success';
         return 'badge badge-secondary';
+    };
+
+    const buildPrintUrl = (id, format = '80mm') => {
+        const url = orderPrintTemplate.replace('__ORDER__', id);
+        const query = `format=${encodeURIComponent(format)}`;
+        return url.includes('?') ? `${url}&${query}` : `${url}?${query}`;
+    };
+
+    const openPrintWindow = (id, format = '80mm') => {
+        if (!id) {
+            return;
+        }
+
+        const printUrl = buildPrintUrl(id, format);
+        window.open(printUrl, '_blank');
     };
 
     let currentOrderId = null;
@@ -144,18 +169,60 @@
                     $('<td>').addClass('text-right').text(order.created_at).appendTo(row);
 
                     const actionCell = $('<td>').addClass('text-right');
-                    const group = $('<div>').addClass('btn-group btn-group-sm').attr('role', 'group');
-                    const viewBtn = $('<button>').addClass('btn btn-outline-primary view-order').data('id', order.id).append($('<i>').addClass('bi bi-eye'));
-                    const printBtn = $('<button>').addClass('btn btn-outline-secondary print-order').data('id', order.id).append($('<i>').addClass('bi bi-printer'));
-                    group.append(viewBtn, printBtn);
+                    const actionWrapper = $('<div>').addClass('d-inline-flex align-items-center');
+
+                    const viewBtn = $('<button>')
+                        .addClass('btn btn-outline-primary btn-sm mr-1 view-order')
+                        .attr('title', 'View order details')
+                        .data('id', order.id)
+                        .append($('<i>').addClass('bi bi-eye'));
+
+                    const printGroup = $('<div>').addClass('btn-group btn-group-sm');
+                    const printPrimary = $('<button>')
+                        .addClass('btn btn-outline-secondary btn-sm print-order')
+                        .attr('title', 'Print 80mm receipt')
+                        .data('id', order.id)
+                        .data('format', '80mm')
+                        .append($('<i>').addClass('bi bi-printer'))
+                        .append($('<span>').addClass('d-none d-lg-inline ml-1').text('80mm'));
+
+                    const printToggle = $('<button>')
+                        .addClass('btn btn-outline-secondary btn-sm dropdown-toggle dropdown-toggle-split')
+                        .attr('data-toggle', 'dropdown')
+                        .attr('aria-haspopup', 'true')
+                        .attr('aria-expanded', 'false');
+                    printToggle.append($('<span>').addClass('sr-only').text('Toggle Dropdown'));
+
+                    const dropdownMenu = $('<div>').addClass('dropdown-menu dropdown-menu-right');
+                    $('<a>')
+                        .addClass('dropdown-item print-order')
+                        .attr('href', '#')
+                        .data('id', order.id)
+                        .data('format', '80mm')
+                        .text('Print 80mm')
+                        .appendTo(dropdownMenu);
+                    $('<a>')
+                        .addClass('dropdown-item print-order')
+                        .attr('href', '#')
+                        .data('id', order.id)
+                        .data('format', 'a4')
+                        .text('Print A4')
+                        .appendTo(dropdownMenu);
+
+                    printGroup.append(printPrimary, printToggle, dropdownMenu);
+
+                    actionWrapper.append(viewBtn, printGroup);
 
                     if (order.status === 'draft') {
-                        const convertBtn = $('<button>').addClass('btn btn-success convert-order').data('id', order.id).append($('<i>').addClass('bi bi-check2-circle'));
-                        convertBtn.attr('title', 'Convert to confirmed order');
-                        group.append(convertBtn);
+                        const convertBtn = $('<button>')
+                            .addClass('btn btn-success btn-sm ml-1 convert-order')
+                            .attr('title', 'Convert to confirmed order')
+                            .data('id', order.id)
+                            .append($('<i>').addClass('bi bi-check2-circle'));
+                        actionWrapper.append(convertBtn);
                     }
 
-                    actionCell.append(group).appendTo(row);
+                    actionCell.append(actionWrapper).appendTo(row);
                     body.append(row);
                 });
             })
@@ -202,10 +269,12 @@
                 .fail(() => toastr.error('Unable to fetch order details.'));
         });
 
-        $('#orderHistoryTable').on('click', '.print-order', function () {
+        $('#orderHistoryTable').on('click', '.print-order', function (event) {
+            event.preventDefault();
+
             const id = $(this).data('id');
-            const url = orderPrintTemplate.replace('__ORDER__', id);
-            window.open(url, '_blank');
+            const format = $(this).data('format') || '80mm';
+            openPrintWindow(id, format);
         });
 
         $('#orderHistoryTable').on('click', '.convert-order', function () {
@@ -230,13 +299,15 @@
             });
         });
 
-        $('#detailPrint').on('click', function () {
+        $('#detailPrintGroup').on('click', '.detail-print', function (event) {
+            event.preventDefault();
+
             if (!currentOrderId) {
                 return;
             }
 
-            const url = orderPrintTemplate.replace('__ORDER__', currentOrderId);
-            window.open(url, '_blank');
+            const format = $(this).data('format') || '80mm';
+            openPrintWindow(currentOrderId, format);
         });
     });
 </script>

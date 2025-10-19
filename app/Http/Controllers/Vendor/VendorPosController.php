@@ -296,7 +296,7 @@ class VendorPosController extends Controller
         ]);
     }
 
-    public function print(PosOrder $order)
+    public function print(Request $request, PosOrder $order)
     {
         if ($order->vendor_id !== auth()->id()) {
             abort(404);
@@ -306,9 +306,15 @@ class VendorPosController extends Controller
 
         $vendor = auth()->user();
 
+        $format = strtolower($request->input('format', '80mm'));
+        if (!in_array($format, ['80mm', 'a4'], true)) {
+            $format = '80mm';
+        }
+
         return view('vendor.pos.print', [
             'order' => $order,
             'vendor' => $vendor,
+            'format' => $format,
         ]);
     }
 
