@@ -31,6 +31,7 @@ use App\Http\Controllers\Vendor\{
     VendorPosSettingController
 };
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\OrderAppController;
 
 Route::get('/clear-cache', function () {
     Artisan::call('cache:clear');
@@ -114,6 +115,13 @@ Route::view('contact-us', 'contact')->name('contact');
 Route::view('about-us', 'about')->name('about-us');
 Route::view('careers', 'careers')->name('careers');
 Route::any('/contact-submit', [ContactController::class, 'submit'])->name('contact.submit');
+
+Route::prefix('order')->name('order.')->group(function () {
+    Route::get('{code}', [OrderAppController::class, 'index'])->name('index');
+    Route::get('{code}/menu', [OrderAppController::class, 'menu'])->name('menu');
+    Route::post('{code}/orders', [OrderAppController::class, 'store'])->name('store');
+    Route::get('{code}/orders', [OrderAppController::class, 'history'])->name('history');
+});
 
 Route::prefix('vendor')->group(function () {
     Route::get('/login', [VendorAuthController::class, 'showLoginForm'])->name('vendor.login');
