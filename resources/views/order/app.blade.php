@@ -118,37 +118,11 @@
             box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
         }
 
-        .item-card .card-body {
-            display: flex;
-            flex-direction: column;
-            gap: .35rem;
-        }
-
-        .item-media {
+        .item-img {
             width: 100%;
-            aspect-ratio: 1 / 1;
-            border-radius: 14px 14px 0 0;
-            overflow: hidden;
-            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .item-media img {
-            width: 100%;
-            height: 100%;
+            aspect-ratio: 1/1;
             object-fit: cover;
-        }
-
-        .item-placeholder {
-            color: var(--muted);
-            font-size: 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
+            border-radius: 14px 14px 0 0;
         }
 
         .cart-bar {
@@ -805,15 +779,13 @@
             const priceText = item.display_price ? currency.format(item.display_price) : 'Unavailable';
             const disabled = !item.display_price || item.display_price <= 0;
             const description = item.description ? `<p class="text-secondary small mb-2">${item.description}</p>` : '';
-            const image = item.image_url
-                ? `<img src="${item.image_url}" alt="${item.name}">`
-                : `<div class="item-placeholder"><i class="bi bi-image"></i></div>`;
+            const image = item.image_url ? `<img src="${item.image_url}" alt="${item.name}" class="item-img">` : '';
             const menuKey = getMenuItemKey(item);
             grid.append(`
                 <div class="col-6 col-md-4 col-xl-3">
                     <div class="item-card h-100 d-flex flex-column">
-                        <div class="item-media">${image}</div>
-                        <div class="card-body">
+                        ${image}
+                        <div class="card-body d-flex flex-column">
                             <div class="card-title" title="${item.name}">${item.name}</div>
                             <div class="meta text-uppercase small text-secondary mb-1">${item.category_name}</div>
                             ${description}
