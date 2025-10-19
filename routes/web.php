@@ -168,6 +168,7 @@ Route::prefix('vendor')->group(function () {
             Route::get('/', [VendorPosController::class, 'index'])->name('index');
             Route::get('/products', [VendorPosController::class, 'products'])->name('products');
             Route::get('/orders', [VendorPosController::class, 'orders'])->name('orders');
+            Route::get('/orders/list', [VendorPosController::class, 'ordersList'])->name('orders.list');
             Route::get('/orders/{order}', [VendorPosController::class, 'show'])->name('orders.show');
             Route::get('/orders/{order}/print', [VendorPosController::class, 'print'])->name('orders.print');
             Route::post('/orders', [VendorPosController::class, 'store'])->name('orders.store');

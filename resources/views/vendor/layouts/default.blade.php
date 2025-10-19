@@ -156,9 +156,17 @@
             </li>
 
             <li class="nav-item {{ request()->routeIs('vendor.pos.*') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('vendor.pos.index') }}">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePos"
+                    aria-expanded="{{ request()->routeIs('vendor.pos.*') ? 'true' : 'false' }}" aria-controls="collapsePos">
                     <i class="bi bi-cash-register"></i>
-                    <span>POS</span></a>
+                    <span>POS</span>
+                </a>
+                <div id="collapsePos" class="collapse {{ request()->routeIs('vendor.pos.*') ? 'show' : '' }}" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item {{ request()->routeIs('vendor.pos.index') ? 'active' : '' }}" href="{{ route('vendor.pos.index') }}">POS</a>
+                        <a class="collapse-item {{ request()->routeIs('vendor.pos.orders') ? 'active' : '' }}" href="{{ route('vendor.pos.orders') }}">POS Orders</a>
+                    </div>
+                </div>
             </li>
 
 
