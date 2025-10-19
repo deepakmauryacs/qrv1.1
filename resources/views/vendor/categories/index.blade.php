@@ -8,12 +8,9 @@
             <p class="text-muted mb-0">Create and manage the categories that power your digital QR menu.</p>
         </div>
         <div class="text-right">
-            <a href="{{ route('vendor.categories.create') }}" class="btn btn-outline-primary mb-2">
-                <i class="bi bi-plus-circle"></i> Create New QR Category
+            <a href="{{ route('vendor.categories.create') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Create Category
             </a>
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createCategoryModal">
-                <i class="bi bi-folder-plus"></i> New Category
-            </button>
         </div>
     </div>
 
@@ -37,39 +34,6 @@
                     </tbody>
                 </table>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- Create Modal -->
-<div class="modal fade" id="createCategoryModal" tabindex="-1" role="dialog" aria-labelledby="createCategoryModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="createCategoryModalLabel">Create QR Category</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form id="createCategoryForm" action="{{ route('vendor.categories.store') }}" method="POST">
-                @csrf
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="create-name">Category Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="create-name" name="name" placeholder="e.g., Starters" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="create-description">Description</label>
-                        <textarea class="form-control" id="create-description" name="description" rows="3" placeholder="Short description (optional)"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-save"></i> Save Category
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 </div>
@@ -101,37 +65,6 @@
                 toastr.error('Something went wrong.');
             }
         }
-
-        $('#createCategoryForm').on('submit', function (e) {
-            e.preventDefault();
-
-            const form = $(this);
-            const submitButton = form.find('button[type="submit"]');
-
-            submitButton.prop('disabled', true).html('<i class="bi bi-hourglass-split spin"></i> Saving...');
-
-            $.ajax({
-                url: form.attr('action'),
-                method: 'POST',
-                data: form.serialize(),
-                success: function (response) {
-                    if (response.status === 1) {
-                        toastr.success(response.message);
-                        form.trigger('reset');
-                        $('#createCategoryModal').modal('hide');
-                        table.ajax.reload(null, false);
-                    } else {
-                        handleErrors(response.message);
-                    }
-                },
-                error: function (xhr) {
-                    handleErrors(xhr.responseJSON?.message);
-                },
-                complete: function () {
-                    submitButton.prop('disabled', false).html('<i class="bi bi-save"></i> Save Category');
-                }
-            });
-        });
 
         $('#categoriesTable').on('click', '.btn-delete', function () {
             const deleteUrl = $(this).data('url');
