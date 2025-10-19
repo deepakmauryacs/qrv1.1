@@ -134,6 +134,7 @@ Route::prefix('vendor')->group(function () {
 
         Route::get('categories', [VendorCategoryController::class, 'index'])->name('vendor.categories.index');
         Route::get('categories/create', [VendorCategoryController::class, 'create'])->name('vendor.categories.create');
+        Route::get('categories/suggestions', [VendorCategoryController::class, 'suggestions'])->name('vendor.categories.suggestions');
         Route::get('categories/{category}/edit', [VendorCategoryController::class, 'edit'])->name('vendor.categories.edit');
         Route::get('categories/data', [VendorCategoryController::class, 'data'])->name('vendor.categories.data');
         Route::post('categories', [VendorCategoryController::class, 'store'])->name('vendor.categories.store');

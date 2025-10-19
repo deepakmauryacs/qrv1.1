@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
+use App\Models\MenuCategory;
 use App\Models\VendorCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -52,6 +53,35 @@ class VendorCategoryController extends Controller
             })
             ->rawColumns(['action'])
             ->make(true);
+    }
+
+    /**
+     * Provide suggestions for category names from the shared menu categories table.
+     */
+    public function suggestions(Request $request)
+    {
+        $query = trim((string) $request->get('q', ''));
+
+        if ($query === '') {
+            return response()->json([
+                'status' => 1,
+                'data' => [],
+            ]);
+        }
+
+        $suggestions = MenuCategory::query()
+            ->select('name')
+            ->where('name', 'like', '%' . str_replace(['%', '_'], ['\\%', '\\_'], $query) . '%')
+            ->orderBy('name')
+            ->limit(10)
+            ->pluck('name')
+            ->unique()
+            ->values();
+
+        return response()->json([
+            'status' => 1,
+            'data' => $suggestions,
+        ]);
     }
 
     /**
