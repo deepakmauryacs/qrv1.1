@@ -3,6 +3,53 @@
 @section('pageTitle', 'Restaurant POS')
 
 @section('content')
+<style>
+    .pos-product-card-body {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .pos-product-card-body #productFeedback {
+        flex-shrink: 0;
+    }
+
+    .pos-product-card-body #productList {
+        flex: 1 1 auto;
+        overflow-y: auto;
+        overflow-x: hidden;
+        margin: 0;
+        padding-right: 0.25rem;
+        padding-bottom: 0.5rem;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .pos-product-card-body #productList::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .pos-product-card-body #productList::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .pos-product-card-body #productList::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.25);
+        border-radius: 4px;
+    }
+
+    @media (min-width: 992px) {
+        .pos-product-card-body #productList {
+            max-height: calc(100vh - 320px);
+        }
+    }
+
+    @media (max-width: 991.98px) {
+        .pos-product-card-body #productList {
+            max-height: none;
+        }
+    }
+</style>
 <div class="container-fluid">
     <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Restaurant POS</h1>
@@ -27,7 +74,7 @@
                         <input type="text" class="form-control" id="productSearch" placeholder="Search menu items">
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body pos-product-card-body">
                     <div class="mb-3">
                         <div class="form-group mb-0">
                             <label for="categoryFilter" class="small text-muted text-uppercase font-weight-bold">Categories</label>
