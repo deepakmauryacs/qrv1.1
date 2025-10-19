@@ -118,6 +118,12 @@ Route::any('/contact-submit', [ContactController::class, 'submit'])->name('conta
 
 Route::prefix('order')->name('order.')->group(function () {
     Route::get('{code}', [OrderAppController::class, 'index'])->name('index');
+    Route::get('{code}/items', [OrderAppController::class, 'items'])->name('items');
+    Route::get('{code}/checkout', [OrderAppController::class, 'checkout'])->name('checkout');
+    Route::get('{code}/profile', [OrderAppController::class, 'profile'])->name('profile');
+    Route::get('{code}/login', [OrderAppController::class, 'login'])->name('login');
+    Route::get('{code}/signup', [OrderAppController::class, 'signup'])->name('signup');
+
     Route::get('{code}/menu', [OrderAppController::class, 'menu'])->name('menu');
     Route::post('{code}/orders', [OrderAppController::class, 'store'])->name('store');
     Route::get('{code}/orders', [OrderAppController::class, 'history'])->name('history');
