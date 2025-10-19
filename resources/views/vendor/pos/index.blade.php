@@ -105,10 +105,6 @@
                             <label for="customerName">Customer Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="customerName" placeholder="Walk-in Customer" required>
                         </div>
-                        <div class="form-group">
-                            <label for="customerEmail">Customer Email</label>
-                            <input type="email" class="form-control" id="customerEmail" placeholder="customer@example.com">
-                        </div>
                         <div class="form-group mb-0">
                             <label for="customerContact">Contact Number <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="customerContact" placeholder="Contact number" required>
@@ -176,7 +172,6 @@
                         <tr>
                             <th>Order #</th>
                             <th>Customer</th>
-                            <th>Email</th>
                             <th>Contact</th>
                             <th class="text-right">Total</th>
                             <th class="text-right">Created</th>
@@ -185,7 +180,7 @@
                     </thead>
                     <tbody>
                         <tr id="ordersEmptyRow">
-                            <td colspan="7" class="text-center text-muted py-3">No orders yet</td>
+                            <td colspan="6" class="text-center text-muted py-3">No orders yet</td>
                         </tr>
                     </tbody>
                 </table>
@@ -207,7 +202,6 @@
                 <div class="mb-3">
                     <div><strong>Order #:</strong> <span id="detailOrderNumber"></span></div>
                     <div><strong>Customer:</strong> <span id="detailCustomer"></span></div>
-                    <div><strong>Email:</strong> <span id="detailEmail"></span></div>
                     <div><strong>Contact:</strong> <span id="detailContact"></span></div>
                     <div><strong>Created At:</strong> <span id="detailCreated"></span></div>
                 </div>
@@ -513,7 +507,6 @@
             }
 
             const name = $('#customerName').val().trim();
-            const email = $('#customerEmail').val().trim();
             const contact = $('#customerContact').val().trim();
 
             if (!name || !contact) {
@@ -523,7 +516,6 @@
 
             const payload = {
                 customer_name: name,
-                customer_email: email || null,
                 customer_contact: contact,
                 discount_amount: parseFloat($('#discountAmount').val()) || 0,
                 items: cart.map(item => ({
@@ -576,7 +568,6 @@
                     currentOrderId = response.id;
                     $('#detailOrderNumber').text(`#${response.reference}`);
                     $('#detailCustomer').text(response.customer_name);
-                    $('#detailEmail').text(response.customer_email || '-');
                     $('#detailContact').text(response.customer_contact);
                     $('#detailCreated').text(response.created_at);
 
