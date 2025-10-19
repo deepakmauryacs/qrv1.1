@@ -228,15 +228,37 @@ class VendorMenuController extends Controller {
 
 
     public function edit($id) {
-       
-        $menu = VendorMenu::findOrFail($id);
-        $categories = MenuCategory::all();
+        $vendorId = auth()->id();
+
+        $menu = VendorMenu::where('vendor_id', $vendorId)->findOrFail($id);
+
+        $categories = VendorCategory::query()
+            ->where('vendor_id', $vendorId)
+            ->where(function ($query) use ($menu) {
+                $query->where('is_active', true);
+
+                if ($menu->menu_category_id) {
+                    $query->orWhere('id', $menu->menu_category_id);
+                }
+            })
+            ->orderBy('display_order')
+            ->orderBy('name')
+            ->get();
+
         return view('vendor.menus.edit', compact('menu', 'categories'));
     }
 
     public function update(Request $request, $id) {
+        $vendorId = auth()->id();
+
         $validator = Validator::make($request->all(), [
-                    'category_id' => 'required|exists:menu_categories,id',
+                    'category_id' => [
+                        'required',
+                        Rule::exists('vendor_categories', 'id')->where(function ($query) use ($vendorId) {
+                            return $query->where('vendor_id', $vendorId)
+                                ->where('is_active', true);
+                        }),
+                    ],
                     'name' => 'required|string|max:255',
                     'description' => 'nullable|string',
                     'image' => 'nullable|image|mimes:jpg,png,jpeg,gif|max:2048',
@@ -254,7 +276,7 @@ class VendorMenuController extends Controller {
 
 
         // Find the existing menu item by ID
-        $menu = VendorMenu::findOrFail($id);
+        $menu = VendorMenu::where('vendor_id', $vendorId)->findOrFail($id);
 
         // Sanitize input data
         $category_id = filter_var($request->input('category_id'), FILTER_SANITIZE_NUMBER_INT);
