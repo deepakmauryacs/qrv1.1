@@ -36,11 +36,10 @@
 
                     <div class="col-md-6 mb-3">
                         <label class="form-label d-block" for="create-is-active">Status</label>
-                        <input type="hidden" name="is_active" value="0">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" id="create-is-active" name="is_active" value="1" {{ old('is_active', 1) ? 'checked' : '' }}>
-                            <label class="form-check-label" for="create-is-active">Active</label>
-                        </div>
+                        <select class="form-select" id="create-is-active" name="is_active">
+                            <option value="1" {{ old('is_active', 1) == 1 ? 'selected' : '' }}>Active</option>
+                            <option value="0" {{ old('is_active', 1) == 0 ? 'selected' : '' }}>Inactive</option>
+                        </select>
                     </div>
                 </div>
 

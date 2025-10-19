@@ -37,11 +37,10 @@
 
                     <div class="col-md-6 mb-3">
                         <label class="form-label d-block" for="edit-is-active">Status</label>
-                        <input type="hidden" name="is_active" value="0">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" id="edit-is-active" name="is_active" value="1" {{ old('is_active', $category->is_active) ? 'checked' : '' }}>
-                            <label class="form-check-label" for="edit-is-active">Active</label>
-                        </div>
+                        <select class="form-select" id="edit-is-active" name="is_active">
+                            <option value="1" {{ old('is_active', $category->is_active) == 1 ? 'selected' : '' }}>Active</option>
+                            <option value="0" {{ old('is_active', $category->is_active) == 0 ? 'selected' : '' }}>Inactive</option>
+                        </select>
                     </div>
                 </div>
 
