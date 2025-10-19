@@ -12,11 +12,17 @@ class VendorCategoryController extends Controller
     /**
      * Display the vendor categories index page.
      */
-    public function index(Request $request)
+    public function index()
     {
-        $openCreateModal = $request->boolean('create');
+        return view('vendor.categories.index');
+    }
 
-        return view('vendor.categories.index', compact('openCreateModal'));
+    /**
+     * Show the form for creating a new vendor category.
+     */
+    public function create()
+    {
+        return view('vendor.categories.create');
     }
 
     /**

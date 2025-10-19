@@ -143,8 +143,8 @@
                 </a>
                 <div id="collapseCategories" class="collapse {{ request()->routeIs('vendor.categories.*') ? 'show' : '' }}" aria-labelledby="headingCategories" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item {{ request()->routeIs('vendor.categories.index') && !request()->has('create') ? 'active' : '' }}" href="{{ route('vendor.categories.index') }}">QR Menu Categories</a>
-                        <a class="collapse-item {{ request()->routeIs('vendor.categories.index') && request()->has('create') ? 'active' : '' }}" href="{{ route('vendor.categories.index', ['create' => 1]) }}">Create New QR Categories</a>
+                        <a class="collapse-item {{ request()->routeIs('vendor.categories.index') ? 'active' : '' }}" href="{{ route('vendor.categories.index') }}">QR Menu Categories</a>
+                        <a class="collapse-item {{ request()->routeIs('vendor.categories.create') ? 'active' : '' }}" href="{{ route('vendor.categories.create') }}">Create New QR Categories</a>
                     </div>
                 </div>
             </li>
