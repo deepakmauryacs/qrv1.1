@@ -208,6 +208,11 @@ class VendorPosController extends Controller
 
     public function orders()
     {
+        return view('vendor.pos.orders');
+    }
+
+    public function ordersList()
+    {
         $vendorId = auth()->id();
 
         $orders = PosOrder::query()
