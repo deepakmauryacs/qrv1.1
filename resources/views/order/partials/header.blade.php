@@ -1,6 +1,11 @@
 @php
     $storeName = optional($settings)->store_name ?? $vendor->name;
     $logo = optional($settings) && $settings->menu_logo ? asset($settings->menu_logo) : null;
+    $orderUser = auth('vendor_user')->user();
+
+    if ($orderUser && $orderUser->vendor_id !== $vendor->id) {
+        $orderUser = null;
+    }
 @endphp
 
 <header class="shadow-sm bg-white">
@@ -26,15 +31,37 @@
                     </li>
                    
                   
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle @if (request()->routeIs('order.login') || request()->routeIs('order.signup')) active fw-semibold @endif" href="#" id="authDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Account
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="authDropdown">
-                            <li><a class="dropdown-item" href="{{ route('order.login', ['code' => $vendor->code]) }}"><i class="bi bi-box-arrow-in-right me-2"></i>Login</a></li>
-                            <li><a class="dropdown-item" href="{{ route('order.signup', ['code' => $vendor->code]) }}"><i class="bi bi-person-plus me-2"></i>Sign up</a></li>
-                        </ul>
-                    </li>
+                    @if ($orderUser)
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle @if (request()->routeIs('order.profile')) active fw-semibold @endif" href="#" id="authDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle me-1"></i>{{ $orderUser->name }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="authDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('order.profile', ['code' => $vendor->code]) }}">
+                                        <i class="bi bi-person me-2"></i>My profile
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form method="POST" action="{{ route('order.logout', ['code' => $vendor->code]) }}" class="px-3 py-1">
+                                        @csrf
+                                        <button type="submit" class="btn btn-link p-0 text-decoration-none text-danger"><i class="bi bi-box-arrow-right me-2"></i>Log out</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    @else
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle @if (request()->routeIs('order.login') || request()->routeIs('order.signup')) active fw-semibold @endif" href="#" id="authDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Account
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="authDropdown">
+                                <li><a class="dropdown-item" href="{{ route('order.login', ['code' => $vendor->code]) }}"><i class="bi bi-box-arrow-in-right me-2"></i>Login</a></li>
+                                <li><a class="dropdown-item" href="{{ route('order.signup', ['code' => $vendor->code]) }}"><i class="bi bi-person-plus me-2"></i>Sign up</a></li>
+                            </ul>
+                        </li>
+                    @endif
                 </ul>
                 <div class="d-flex align-items-center mt-3 mt-lg-0">
                     <a href="{{ route('order.checkout', ['code' => $vendor->code]) }}" class="btn btn-primary rounded-pill d-flex align-items-center gap-2 px-3">

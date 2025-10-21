@@ -8,9 +8,12 @@ use App\Models\MenuCategory;
 use App\Models\Setting;
 use App\Models\Vendor;
 use App\Models\VendorMenu;
+use App\Models\VendorUser;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -51,9 +54,21 @@ class OrderAppController extends Controller
     /**
      * Show the checkout page.
      */
-    public function checkout(string $code)
+    public function checkout(Request $request, string $code)
     {
         [$vendor, $settings] = $this->loadVendorContext($code);
+
+        $guard = Auth::guard('vendor_user');
+
+        if (!$guard->check() || $guard->user()->vendor_id !== $vendor->id) {
+            if ($guard->check() && $guard->user()->vendor_id !== $vendor->id) {
+                $guard->logout();
+            }
+
+            $request->session()->put('order.return_url', route('order.checkout', ['code' => $vendor->code]));
+
+            return redirect()->route('order.login', ['code' => $vendor->code]);
+        }
 
         return view('order.checkout', compact('vendor', 'settings'));
     }
@@ -61,9 +76,21 @@ class OrderAppController extends Controller
     /**
      * Show the profile and order history page.
      */
-    public function profile(string $code)
+    public function profile(Request $request, string $code)
     {
         [$vendor, $settings] = $this->loadVendorContext($code);
+
+        $guard = Auth::guard('vendor_user');
+
+        if (!$guard->check() || $guard->user()->vendor_id !== $vendor->id) {
+            if ($guard->check() && $guard->user()->vendor_id !== $vendor->id) {
+                $guard->logout();
+            }
+
+            $request->session()->put('order.return_url', route('order.profile', ['code' => $vendor->code]));
+
+            return redirect()->route('order.login', ['code' => $vendor->code]);
+        }
 
         return view('order.profile', compact('vendor', 'settings'));
     }
@@ -71,9 +98,22 @@ class OrderAppController extends Controller
     /**
      * Show the login form.
      */
-    public function login(string $code)
+    public function login(Request $request, string $code)
     {
         [$vendor, $settings] = $this->loadVendorContext($code);
+
+        $guard = Auth::guard('vendor_user');
+
+        if ($guard->check()) {
+            if ($guard->user()->vendor_id === $vendor->id) {
+                $target = $request->session()->pull('order.return_url')
+                    ?? route('order.checkout', ['code' => $vendor->code]);
+
+                return redirect()->to($target);
+            }
+
+            $guard->logout();
+        }
 
         return view('order.login', compact('vendor', 'settings'));
     }
@@ -81,11 +121,120 @@ class OrderAppController extends Controller
     /**
      * Show the sign up form.
      */
-    public function signup(string $code)
+    public function signup(Request $request, string $code)
     {
         [$vendor, $settings] = $this->loadVendorContext($code);
 
+        $guard = Auth::guard('vendor_user');
+
+        if ($guard->check()) {
+            if ($guard->user()->vendor_id === $vendor->id) {
+                $target = $request->session()->pull('order.return_url')
+                    ?? route('order.checkout', ['code' => $vendor->code]);
+
+                return redirect()->to($target);
+            }
+
+            $guard->logout();
+        }
+
         return view('order.signup', compact('vendor', 'settings'));
+    }
+
+    /**
+     * Handle login submission for vendor users.
+     */
+    public function authenticate(Request $request, string $code)
+    {
+        [$vendor] = $this->loadVendorContext($code);
+
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string'],
+            'remember' => ['nullable', 'boolean'],
+        ]);
+
+        $remember = $request->boolean('remember');
+        $guard = Auth::guard('vendor_user');
+
+        if ($guard->attempt([
+            'email' => $credentials['email'],
+            'password' => $credentials['password'],
+            'vendor_id' => $vendor->id,
+        ], $remember)) {
+            $request->session()->regenerate();
+
+            $redirectTo = $request->session()->pull('order.return_url')
+                ?? route('order.checkout', ['code' => $vendor->code]);
+
+            return redirect()->to($redirectTo)->with('status', 'Welcome back!');
+        }
+
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ])->onlyInput('email', 'remember');
+    }
+
+    /**
+     * Handle signup submission for vendor users.
+     */
+    public function register(Request $request, string $code)
+    {
+        [$vendor] = $this->loadVendorContext($code);
+
+        $data = $request->validate([
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['nullable', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:30'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'terms' => ['accepted'],
+        ], [
+            'terms.accepted' => 'You must accept the terms & conditions to continue.',
+        ]);
+
+        $existing = VendorUser::where('vendor_id', $vendor->id)
+            ->where('email', $data['email'])
+            ->exists();
+
+        if ($existing) {
+            return back()->withErrors([
+                'email' => 'An account with this email already exists for this restaurant.',
+            ])->withInput();
+        }
+
+        $user = VendorUser::create([
+            'vendor_id' => $vendor->id,
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'] ?? null,
+            'email' => $data['email'],
+            'phone' => $data['phone'] ?? null,
+            'password' => Hash::make($data['password']),
+        ]);
+
+        Auth::guard('vendor_user')->login($user);
+        $request->session()->regenerate();
+
+        $redirectTo = $request->session()->pull('order.return_url')
+            ?? route('order.checkout', ['code' => $vendor->code]);
+
+        return redirect()->to($redirectTo)->with('status', 'Account created successfully.');
+    }
+
+    /**
+     * Logout the active vendor user session.
+     */
+    public function logout(Request $request, string $code)
+    {
+        [$vendor] = $this->loadVendorContext($code);
+
+        Auth::guard('vendor_user')->logout();
+
+        $request->session()->forget('order.return_url');
+        $request->session()->regenerateToken();
+
+        return redirect()->route('order.login', ['code' => $vendor->code])
+            ->with('status', 'You have been signed out successfully.');
     }
 
     /**
