@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Vendor;
 use App\Models\Setting;
-use App\Models\MenuCategory;
 use App\Models\VendorMenu;
 use App\Models\QRScan;
 use App\Models\VendorContact;
+use App\Models\VendorCategory;
+use App\Models\MenuCategory;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -69,16 +70,36 @@ class ItemListController extends Controller
             'scanned_at' => now(), // Current timestamp
         ]);
 
-        // Fetch menu categories that have at least one menu item for the vendor
-        $menuCategories = MenuCategory::whereHas('vendorMenus', function ($query) use ($vendor) {
-            $query->where('vendor_id', $vendor->id)->where('status', 1);
-        })->with(['vendorMenus' => function ($query) use ($vendor) {
-            $query->where('vendor_id', $vendor->id)->where('status', 1);
-        }])->get();
+        // Prefer vendor-specific categories when building the public menu
+        $menuCategories = VendorCategory::query()
+            ->where('vendor_id', $vendor->id)
+            ->where('is_active', true)
+            ->whereHas('vendorMenus', function ($query) use ($vendor) {
+                $query->where('vendor_id', $vendor->id)->where('status', 1);
+            })
+            ->with(['vendorMenus' => function ($query) use ($vendor) {
+                $query->where('vendor_id', $vendor->id)
+                    ->where('status', 1)
+                    ->orderBy('order')
+                    ->orderBy('name');
+            }])
+            ->orderBy('display_order')
+            ->orderBy('name')
+            ->get();
 
-  
+        // Fallback to legacy menu categories if vendor categories are not yet defined
+        if ($menuCategories->isEmpty()) {
+            $menuCategories = MenuCategory::whereHas('vendorMenus', function ($query) use ($vendor) {
+                $query->where('vendor_id', $vendor->id)->where('status', 1);
+            })->with(['vendorMenus' => function ($query) use ($vendor) {
+                $query->where('vendor_id', $vendor->id)
+                    ->where('status', 1)
+                    ->orderBy('order')
+                    ->orderBy('name');
+            }])->get();
+        }
 
-        return view('webapp.item_list1', compact('menuCategories', 'vendor','settings'));
+        return view('webapp.item_list1', compact('menuCategories', 'vendor', 'settings'));
     }
     
     public function contact($vendor_code){

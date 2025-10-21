@@ -44,6 +44,6 @@ class VendorCategory extends Model
      */
     public function vendorMenus()
     {
-        return $this->hasMany(VendorMenu::class, 'vendor_category_id');
+        return $this->hasMany(VendorMenu::class, 'menu_category_id');
     }
 }
