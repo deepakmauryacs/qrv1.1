@@ -24,15 +24,8 @@
                     <li class="nav-item">
                         <a class="nav-link @if (request()->routeIs('order.index')) active fw-semibold @endif" href="{{ route('order.index', ['code' => $vendor->code]) }}">Home</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link @if (request()->routeIs('order.items')) active fw-semibold @endif" href="{{ route('order.items', ['code' => $vendor->code]) }}">Menu</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link @if (request()->routeIs('order.checkout')) active fw-semibold @endif" href="{{ route('order.checkout', ['code' => $vendor->code]) }}">Checkout</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link @if (request()->routeIs('order.profile')) active fw-semibold @endif" href="{{ route('order.profile', ['code' => $vendor->code]) }}">Profile</a>
-                    </li>
+                   
+                  
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle @if (request()->routeIs('order.login') || request()->routeIs('order.signup')) active fw-semibold @endif" href="#" id="authDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Account

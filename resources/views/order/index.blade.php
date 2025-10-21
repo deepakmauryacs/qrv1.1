@@ -7,7 +7,7 @@
 <section class="py-5 py-lg-6 app-gradient">
     <div class="container">
         <div class="row g-4 align-items-center">
-            <div class="col-12 col-lg-6">
+            <div class="col-12 col-lg-12">
                 <div class="glass-card p-4 p-lg-5">
                     <span class="badge rounded-pill text-bg-primary-subtle text-primary mb-3">Start your order</span>
                     <h1 class="display-5 fw-bold mb-3">Delicious moments from {{ optional($settings)->store_name ?? $vendor->name }}</h1>
@@ -45,65 +45,7 @@
                     </form>
                 </div>
             </div>
-            <div class="col-12 col-lg-6">
-                <div class="p-4 p-lg-5">
-                    <div class="rounded-4 overflow-hidden shadow-lg">
-                        <img src="https://images.unsplash.com/photo-1552332386-f8dd00dc2f85?auto=format&fit=crop&w=900&q=80" alt="Dining" class="img-fluid">
-                    </div>
-                    <div class="mt-4 row g-3">
-                        <div class="col-6">
-                            <div class="card border-0 shadow-sm h-100">
-                                <div class="card-body">
-                                    <p class="text-secondary small mb-1">Today's hours</p>
-                                    <h5 class="fw-semibold mb-0"><i class="bi bi-clock-history text-primary me-2"></i>11:00 AM – 11:00 PM</h5>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="card border-0 shadow-sm h-100">
-                                <div class="card-body">
-                                    <p class="text-secondary small mb-1">Location</p>
-                                    <h5 class="fw-semibold mb-0"><i class="bi bi-geo-alt text-primary me-2"></i>{{ optional($settings)->store_address ?? 'We deliver nearby' }}</h5>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="py-5">
-    <div class="container">
-        <div class="row g-4">
-            <div class="col-12 col-md-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <span class="badge text-bg-light text-primary mb-3"><i class="bi bi-fire me-1"></i>Signature picks</span>
-                        <h5 class="fw-semibold">Chef-curated specials</h5>
-                        <p class="text-secondary small">Seasonal produce and bold flavours make every visit memorable.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-md-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <span class="badge text-bg-light text-primary mb-3"><i class="bi bi-emoji-smile me-1"></i>Comfort first</span>
-                        <h5 class="fw-semibold">Dining made delightful</h5>
-                        <p class="text-secondary small">Savour your favourites in a space designed for conversations.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-md-4">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <span class="badge text-bg-light text-primary mb-3"><i class="bi bi-lightning-charge me-1"></i>Swift service</span>
-                        <h5 class="fw-semibold">Pickup in minutes</h5>
-                        <p class="text-secondary small">Perfect for busy schedules without compromising on taste.</p>
-                    </div>
-                </div>
-            </div>
+         
         </div>
     </div>
 </section>
