@@ -18,34 +18,39 @@
             <div class="col-12 col-md-8 col-lg-5">
                 <div class="card border-0 shadow-sm rounded-4">
                     <div class="card-body p-4 p-lg-5">
-                        <form class="d-grid gap-3">
+                        @if ($errors->any())
+                            <div class="alert alert-danger" role="alert">
+                                {{ $errors->first() }}
+                            </div>
+                        @endif
+                        <form class="d-grid gap-3" method="POST" action="{{ route('order.login.submit', ['code' => $vendor->code]) }}">
+                            @csrf
                             <div>
-                                <label class="form-label">Email address</label>
-                                <input type="email" class="form-control form-control-lg" placeholder="you@example.com">
+                                <label class="form-label" for="email">Email address</label>
+                                <input type="email" class="form-control form-control-lg @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}" placeholder="you@example.com" required autocomplete="email" autofocus>
+                                @error('email')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div>
-                                <label class="form-label">Password</label>
+                                <label class="form-label" for="password">Password</label>
                                 <div class="position-relative">
-                                    <input type="password" class="form-control form-control-lg" placeholder="********">
+                                    <input type="password" class="form-control form-control-lg @error('password') is-invalid @enderror" id="password" name="password" placeholder="********" required autocomplete="current-password">
                                     <i class="bi bi-eye position-absolute top-50 end-0 translate-middle-y me-3 text-secondary"></i>
+                                    @error('password')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="rememberMe">
+                                    <input class="form-check-input" type="checkbox" value="1" id="rememberMe" name="remember" @if(old('remember')) checked @endif>
                                     <label class="form-check-label" for="rememberMe">Remember me</label>
                                 </div>
-                                <a href="#" class="small">Forgot password?</a>
+                                <a href="#" class="small disabled" tabindex="-1" aria-disabled="true">Forgot password?</a>
                             </div>
                             <button type="submit" class="btn btn-primary btn-lg rounded-pill">Sign in</button>
                             <div class="text-center text-secondary small">Don't have an account? <a href="{{ route('order.signup', ['code' => $vendor->code]) }}">Create one</a></div>
-                            <div class="text-center">
-                                <span class="text-secondary small">Or continue with</span>
-                                <div class="d-flex justify-content-center gap-2 mt-3">
-                                    <button type="button" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-google me-1"></i>Google</button>
-                                    <button type="button" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-apple me-1"></i>Apple</button>
-                                </div>
-                            </div>
                         </form>
                     </div>
                 </div>

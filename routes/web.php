@@ -123,6 +123,9 @@ Route::prefix('order')->name('order.')->group(function () {
     Route::get('{code}/profile', [OrderAppController::class, 'profile'])->name('profile');
     Route::get('{code}/login', [OrderAppController::class, 'login'])->name('login');
     Route::get('{code}/signup', [OrderAppController::class, 'signup'])->name('signup');
+    Route::post('{code}/login', [OrderAppController::class, 'authenticate'])->name('login.submit');
+    Route::post('{code}/signup', [OrderAppController::class, 'register'])->name('signup.submit');
+    Route::post('{code}/logout', [OrderAppController::class, 'logout'])->name('logout');
 
     Route::get('{code}/menu', [OrderAppController::class, 'menu'])->name('menu');
     Route::post('{code}/orders', [OrderAppController::class, 'store'])->name('store');

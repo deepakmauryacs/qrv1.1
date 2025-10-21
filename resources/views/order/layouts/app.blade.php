@@ -190,7 +190,13 @@
 <body class="d-flex flex-column min-vh-100" data-page="@yield('page-id', 'index')">
     @include('order.partials.header', ['vendor' => $vendor, 'settings' => $settings ?? null])
 
-    <div id="alertContainer" class="container my-3"></div>
+    <div id="alertContainer" class="container my-3">
+        @if (session('status'))
+            <div class="alert alert-success" role="alert">
+                {{ session('status') }}
+            </div>
+        @endif
+    </div>
 
     <main class="flex-grow-1">
         @yield('content')
