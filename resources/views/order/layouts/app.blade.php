@@ -56,6 +56,33 @@
             top: 120px;
             z-index: 10;
         }
+        .filter-bar .form-label {
+            letter-spacing: .08em;
+        }
+        .input-icon-wrapper {
+            position: relative;
+        }
+        .input-icon {
+            position: absolute;
+            inset-inline-start: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+        .input-icon-wrapper .form-control,
+        .input-icon-wrapper .form-select {
+            padding-inline-start: 3.1rem;
+            border-radius: 16px;
+            border-color: #e2e8f0;
+            box-shadow: none;
+            transition: border-color .2s ease, box-shadow .2s ease;
+        }
+        .input-icon-wrapper .form-control:focus,
+        .input-icon-wrapper .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 5px rgba(13, 110, 253, 0.12);
+        }
         .item-card {
             border: 1px solid #edf1f7;
             border-radius: 18px;
@@ -95,10 +122,55 @@
             position: sticky;
             bottom: 0;
             z-index: 20;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(16px);
+        }
+        .cart-bar__content {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+        }
+        .cart-bar__meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .cart-bar__icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #eff6ff;
+            color: #0d6efd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            box-shadow: inset 0 0 0 1px rgba(13, 110, 253, 0.18);
+        }
+        .cart-bar__title {
+            font-weight: 600;
+        }
+        .cart-bar__subtotal {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        .cart-bar__actions {
+            display: flex;
+            gap: .75rem;
+        }
+        .cart-bar__actions .btn {
+            border-radius: 999px;
+            padding-inline: 1.5rem;
         }
         @media (max-width: 768px) {
             .filter-bar {
                 top: 90px;
+            }
+            .cart-bar__actions {
+                width: 100%;
+                justify-content: flex-end;
             }
         }
         footer {
